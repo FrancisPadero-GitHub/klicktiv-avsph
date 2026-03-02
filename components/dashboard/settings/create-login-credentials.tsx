@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Shield, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { useCreateUser } from "@/hooks/auth/useCreateCredentials";
@@ -28,23 +28,39 @@ type FormState = {
   email: string;
   password: string;
   role: Role;
+  fname: string;
+  lname: string;
+  username: string;
 };
 
 const initialFormState: FormState = {
   email: "",
   password: "",
   role: "user",
+  fname: "",
+  lname: "",
+  username: "",
 };
 
 export function CreateLoginCredentials() {
   const [form, setForm] = useState<FormState>(initialFormState);
   const createUserMutation = useCreateUser();
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-    if (!form.email.trim() || !form.password.trim()) {
+    if (
+      !form.email.trim() ||
+      !form.password.trim() ||
+      !form.fname.trim() ||
+      !form.lname.trim()
+    ) {
       toast.error("Please complete all required fields");
+      return;
+    }
+
+    if (form.username.trim() && form.username.trim().length < 3) {
+      toast.error("Username must be at least 3 characters");
       return;
     }
 
@@ -53,6 +69,9 @@ export function CreateLoginCredentials() {
         email: form.email.trim(),
         password: form.password,
         role: form.role,
+        f_name: form.fname.trim(),
+        l_name: form.lname.trim(),
+        username: form.username.trim() || undefined,
       });
 
       toast.success("Login credentials created successfully");
@@ -82,6 +101,37 @@ export function CreateLoginCredentials() {
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
+              <Label htmlFor="credentials-fname">First Name</Label>
+              <Input
+                id="credentials-fname"
+                type="text"
+                placeholder="First name"
+                value={form.fname}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, fname: e.target.value }))
+                }
+                disabled={createUserMutation.isPending}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="credentials-lname">Last Name</Label>
+              <Input
+                id="credentials-lname"
+                type="text"
+                placeholder="Last name"
+                value={form.lname}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, lname: e.target.value }))
+                }
+                disabled={createUserMutation.isPending}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
               <Label htmlFor="credentials-email">Email</Label>
               <Input
                 id="credentials-email"
@@ -95,7 +145,22 @@ export function CreateLoginCredentials() {
                 required
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="credentials-username">Username (optional)</Label>
+              <Input
+                id="credentials-username"
+                type="text"
+                placeholder="username"
+                value={form.username}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, username: e.target.value }))
+                }
+                disabled={createUserMutation.isPending}
+              />
+            </div>
+          </div>
 
+          <div className="grid gap-4 md:grid-cols-1">
             <div className="space-y-2">
               <Label htmlFor="credentials-password">Password</Label>
               <Input
