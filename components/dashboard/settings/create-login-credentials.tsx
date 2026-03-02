@@ -3,15 +3,18 @@
 import React, { useState } from "react";
 import { Shield, UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCreateUser } from "@/hooks/auth/useCreateCredentials";
+import { allProfilesQueryKey } from "@/hooks/auth/useFetchRole";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -43,8 +46,15 @@ const initialFormState: FormState = {
 };
 
 export function CreateLoginCredentials() {
+  const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(initialFormState);
   const createUserMutation = useCreateUser();
+  const queryClient = useQueryClient();
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) setForm(initialFormState);
+  };
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -74,8 +84,9 @@ export function CreateLoginCredentials() {
         username: form.username.trim() || undefined,
       });
 
+      await queryClient.invalidateQueries({ queryKey: allProfilesQueryKey });
       toast.success("Login credentials created successfully");
-      setForm(initialFormState);
+      handleOpenChange(false);
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -86,20 +97,27 @@ export function CreateLoginCredentials() {
   };
 
   return (
-    <Card className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-none">
-      <CardHeader>
-        <CardTitle className="text-xl text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
-          <UserPlus className="h-5 w-5" />
-          Create Login Credentials
-        </CardTitle>
-        <CardDescription>
-          Create user or admin login credentials through Supabase Edge
-          Functions.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button size="sm">
+          <UserPlus className="mr-2 h-4 w-4" />
+          Create Credentials
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <UserPlus className="h-5 w-5" />
+            Create Login Credentials
+          </DialogTitle>
+          <DialogDescription>
+            Create user or admin login credentials through Supabase Edge
+            Functions.
+          </DialogDescription>
+        </DialogHeader>
+
         <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="credentials-fname">First Name</Label>
               <Input
@@ -130,7 +148,7 @@ export function CreateLoginCredentials() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="credentials-email">Email</Label>
               <Input
@@ -160,42 +178,38 @@ export function CreateLoginCredentials() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-1">
-            <div className="space-y-2">
-              <Label htmlFor="credentials-password">Password</Label>
-              <Input
-                id="credentials-password"
-                type="password"
-                placeholder="Enter temporary password"
-                value={form.password}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, password: e.target.value }))
-                }
-                disabled={createUserMutation.isPending}
-                required
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="credentials-password">Password</Label>
+            <Input
+              id="credentials-password"
+              type="password"
+              placeholder="Enter temporary password"
+              value={form.password}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, password: e.target.value }))
+              }
+              disabled={createUserMutation.isPending}
+              required
+            />
           </div>
 
-          <div className="grid gap-4 md:grid-cols-1">
-            <div className="space-y-2">
-              <Label htmlFor="credentials-role">Role</Label>
-              <Select
-                value={form.role}
-                onValueChange={(value: Role) =>
-                  setForm((prev) => ({ ...prev, role: value }))
-                }
-                disabled={createUserMutation.isPending}
-              >
-                <SelectTrigger id="credentials-role" className="w-full">
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="credentials-role">Role</Label>
+            <Select
+              value={form.role}
+              onValueChange={(value: Role) =>
+                setForm((prev) => ({ ...prev, role: value }))
+              }
+              disabled={createUserMutation.isPending}
+            >
+              <SelectTrigger id="credentials-role" className="w-full">
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="user">User</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/40 px-3 py-2 text-xs text-muted-foreground flex items-start gap-2">
@@ -207,19 +221,17 @@ export function CreateLoginCredentials() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setForm(initialFormState)}
+              onClick={() => handleOpenChange(false)}
               disabled={createUserMutation.isPending}
             >
-              Reset
+              Cancel
             </Button>
             <Button type="submit" disabled={createUserMutation.isPending}>
-              {createUserMutation.isPending
-                ? "Creating..."
-                : "Create Credentials"}
+              {createUserMutation.isPending ? "Creating..." : "Create"}
             </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }

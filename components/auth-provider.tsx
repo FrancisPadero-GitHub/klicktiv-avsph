@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabase";
 import { signOut as signOutApi } from "@/lib/auth";
 import { useUser } from "@/hooks/auth/useUser";
 import { AUTH_QUERY_KEY } from "@/hooks/auth/useLogin";
+import { fetchProfileById, profileQueryKey } from "@/hooks/auth/useFetchRole";
 import type { AuthContextValue } from "@/types/auth";
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -39,6 +40,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscription.unsubscribe();
     };
   }, [queryClient]);
+
+  useEffect(() => {
+    const userId = session?.user?.id;
+    if (!userId) {
+      return;
+    }
+
+    void queryClient.prefetchQuery({
+      queryKey: profileQueryKey(userId),
+      queryFn: () => fetchProfileById(userId),
+    });
+  }, [queryClient, session?.user?.id]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

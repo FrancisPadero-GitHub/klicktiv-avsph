@@ -95,6 +95,7 @@ export function useCreateUser() {
         {
           id: newUserId,
           role: profileRole,
+          email: email,
           f_name,
           l_name,
           username: username?.trim() || null,

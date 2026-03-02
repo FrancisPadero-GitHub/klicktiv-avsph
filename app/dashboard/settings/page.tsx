@@ -3,11 +3,11 @@
 import React, { useState } from "react";
 import { PaymentMethodsTable } from "@/components/dashboard/settings/payment-methods";
 import { ReviewTypesTable } from "@/components/dashboard/settings/review-types";
-import { CreateLoginCredentials } from "@/components/dashboard/settings/create-login-credentials";
+import { ProfilesTable } from "@/components/dashboard/settings/profiles-table";
 import { cn } from "@/lib/utils";
-import { CreditCard, ClipboardList, UserPlus } from "lucide-react";
+import { CreditCard, ClipboardList, Users } from "lucide-react";
 
-type SettingsTab = "payment-methods" | "review-types" | "login-credentials";
+type SettingsTab = "payment-methods" | "review-types" | "profiles";
 
 const tabs: Array<{
   id: SettingsTab;
@@ -28,10 +28,10 @@ const tabs: Array<{
     description: "Configure service review categories",
   },
   {
-    id: "login-credentials",
-    label: "Login Credentials",
-    icon: UserPlus,
-    description: "Create user and admin logins",
+    id: "profiles",
+    label: "User Profiles",
+    icon: Users,
+    description: "View all registered profiles",
   },
 ];
 
@@ -79,7 +79,7 @@ export default function SettingsPage() {
         <div className="flex-1 min-w-0">
           {activeTab === "payment-methods" && <PaymentMethodsTable />}
           {activeTab === "review-types" && <ReviewTypesTable />}
-          {activeTab === "login-credentials" && <CreateLoginCredentials />}
+          {activeTab === "profiles" && <ProfilesTable />}
         </div>
       </div>
     </div>

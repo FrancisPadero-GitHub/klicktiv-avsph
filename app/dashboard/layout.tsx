@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import {
   LayoutDashboard,
   Briefcase,
@@ -21,14 +21,25 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { ProtectedRoute } from "@/components/protected-route";
 import { useAuth } from "@/components/auth-provider";
 import { useLogout } from "@/hooks/auth/useLogout";
+import { useFetchRole } from "@/hooks/auth/useFetchRole";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/jobs", label: "Jobs", icon: Briefcase },
   { href: "/dashboard/estimates", label: "Estimates", icon: FileText },
   { href: "/dashboard/reviews", label: "Reviews", icon: MessageSquareText },
-  { href: "/dashboard/technicians", label: "Technicians", icon: Users },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+  {
+    href: "/dashboard/technicians",
+    label: "Technicians",
+    icon: Users,
+    adminOnly: true,
+  },
+  {
+    href: "/dashboard/settings",
+    label: "Settings",
+    icon: Settings,
+    adminOnly: true,
+  },
 ];
 
 export default function DashboardLayout({
@@ -37,9 +48,27 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
+  const { data: profile, isLoading: isRoleLoading } = useFetchRole(user?.id);
   const logoutMutation = useLogout();
+
+  const isAdmin = profile?.role === "admin";
+  const isRestrictedRoute =
+    pathname.startsWith("/dashboard/technicians") ||
+    pathname.startsWith("/dashboard/settings");
+
+  const visibleNavItems = useMemo(
+    () => navItems.filter((item) => !item.adminOnly || isAdmin),
+    [isAdmin],
+  );
+
+  useEffect(() => {
+    if (!isRoleLoading && !isAdmin && isRestrictedRoute) {
+      router.replace("/dashboard");
+    }
+  }, [isAdmin, isRestrictedRoute, isRoleLoading, router]);
 
   const SidebarContent = () => (
     <>
@@ -55,7 +84,7 @@ export default function DashboardLayout({
 
       {/* Nav */}
       <nav className="flex flex-1 flex-col gap-1 p-3">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {visibleNavItems.map(({ href, label, icon: Icon }) => {
           const active =
             href === "/dashboard"
               ? pathname === "/dashboard"
@@ -104,67 +133,73 @@ export default function DashboardLayout({
 
   return (
     <ProtectedRoute>
-      <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950">
-        {/* Desktop Sidebar */}
-        <aside className="hidden w-60 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:flex">
-          <SidebarContent />
-        </aside>
-
-        {/* Mobile Sidebar Overlay */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
-        {/* Mobile Sidebar Drawer */}
-        <aside
-          className={cn(
-            "fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-zinc-200 bg-white transition-transform duration-300 dark:border-zinc-800 dark:bg-zinc-900 lg:hidden",
-            sidebarOpen ? "translate-x-0" : "-translate-x-full",
-          )}
-        >
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="absolute right-3 top-4 rounded-md p-1 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
-            aria-label="Close sidebar"
-          >
-            <X className="h-5 w-5" />
-          </button>
-          <SidebarContent />
-        </aside>
-
-        {/* Main */}
-        <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
-          {/* Top bar */}
-          <header className="flex h-16 items-center justify-between border-b border-zinc-200 bg-white px-6 dark:border-zinc-800 dark:bg-zinc-900">
-            <h1 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-              {navItems.find((n) =>
-                n.href === "/dashboard"
-                  ? pathname === "/dashboard"
-                  : pathname.startsWith(n.href),
-              )?.label ?? "Dashboard"}
-            </h1>
-            <ModeToggle />
-          </header>
-
-          <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      {isRoleLoading ? (
+        <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+          <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
         </div>
+      ) : !isAdmin && isRestrictedRoute ? null : (
+        <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950">
+          {/* Desktop Sidebar */}
+          <aside className="hidden w-60 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:flex">
+            <SidebarContent />
+          </aside>
 
-        {/* Floating toggle button, mobile only */}
-        <button
-          onClick={() => setSidebarOpen((prev) => !prev)}
-          className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 lg:hidden"
-          aria-label="Toggle sidebar"
-        >
-          {sidebarOpen ? (
-            <X className="h-5 w-5" />
-          ) : (
-            <Menu className="h-5 w-5" />
+          {/* Mobile Sidebar Overlay */}
+          {sidebarOpen && (
+            <div
+              className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
           )}
-        </button>
-      </div>
+
+          {/* Mobile Sidebar Drawer */}
+          <aside
+            className={cn(
+              "fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-zinc-200 bg-white transition-transform duration-300 dark:border-zinc-800 dark:bg-zinc-900 lg:hidden",
+              sidebarOpen ? "translate-x-0" : "-translate-x-full",
+            )}
+          >
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="absolute right-3 top-4 rounded-md p-1 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+              aria-label="Close sidebar"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <SidebarContent />
+          </aside>
+
+          {/* Main */}
+          <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
+            {/* Top bar */}
+            <header className="flex h-16 items-center justify-between border-b border-zinc-200 bg-white px-6 dark:border-zinc-800 dark:bg-zinc-900">
+              <h1 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                {visibleNavItems.find((n) =>
+                  n.href === "/dashboard"
+                    ? pathname === "/dashboard"
+                    : pathname.startsWith(n.href),
+                )?.label ?? "Dashboard"}
+              </h1>
+              <ModeToggle />
+            </header>
+
+            <main className="flex-1 overflow-y-auto p-6">{children}</main>
+          </div>
+
+          {/* Floating toggle button, mobile only */}
+          <button
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 lg:hidden"
+            aria-label="Toggle sidebar"
+          >
+            {sidebarOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </button>
+        </div>
+      )}
     </ProtectedRoute>
   );
 }

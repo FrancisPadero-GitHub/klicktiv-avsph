@@ -10,8 +10,14 @@ import { ProfitSplitChart } from "@/components/dashboard/profit-split-chart";
 import { RecentJobsTable } from "@/components/dashboard/jobs/recent-jobs-table";
 import { DashboardExportButton } from "@/components/dashboard/dashboard-export-button";
 import { QueryStatePanel } from "@/components/misc/query-state-panel";
+import { useAuth } from "@/components/auth-provider";
+import { useFetchRole } from "@/hooks/auth/useFetchRole";
 
 export default function DashboardPage() {
+  const { user } = useAuth();
+  const { data: profile } = useFetchRole(user?.id);
+  const isAdmin = profile?.role === "admin";
+
   const {
     kpisState,
     revenueTrendState,
@@ -43,13 +49,16 @@ export default function DashboardPage() {
             Financial dashboard with date filtering
           </p>
         </div>
+
         <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
           <DashboardDateFilter />
-          <DashboardExportButton
-            currentJobs={jobs}
-            technicians={technicians}
-            techNameMap={techNameMap}
-          />
+          {isAdmin ? (
+            <DashboardExportButton
+              currentJobs={jobs}
+              technicians={technicians}
+              techNameMap={techNameMap}
+            />
+          ) : null}
         </div>
       </div>
 
