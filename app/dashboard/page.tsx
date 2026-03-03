@@ -35,6 +35,7 @@ export default function DashboardPage() {
     techNameMap,
     techSummaries,
     technicians,
+    activeTech,
   } = useDashboardData();
 
   return (
@@ -70,7 +71,7 @@ export default function DashboardPage() {
           errorMessage={kpisState.errorMessage}
           loadingMessage="Loading KPI cards..."
         >
-          <DashboardKPIs metrics={metrics} techCount={techSummaries.length} />
+          <DashboardKPIs metrics={metrics} techCount={activeTech} />
         </QueryStatePanel>
 
         <div className="grid gap-6 lg:grid-cols-2">

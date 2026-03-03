@@ -10,7 +10,6 @@ import { useFetchJobDetailed } from "@/hooks/jobs/useFetchJobs";
 import { useFetchTechSummary } from "@/hooks/technicians/useFetchTechSummary";
 import { useFetchTechnicians } from "@/hooks/technicians/useFetchTechnicians";
 import { d, dSum, dSub, dToNum } from "@/lib/decimal";
-import type { VJobsRow } from "@/hooks/jobs/useFetchJobs";
 
 export interface DashboardMetrics {
   grossRevenue: number;
@@ -85,7 +84,9 @@ export function useDashboardData() {
 
   const jobs = jobsQuery.data ?? [];
   const techSummaries = techSummaryQuery.data ?? [];
-  const technicians = techniciansQuery.data ?? [];
+  const technicians = (techniciansQuery.data ?? []).filter(
+    (t) => t.deleted_at == null,
+  );
 
   const isLoading =
     jobsQuery.isLoading ||
@@ -148,6 +149,9 @@ export function useDashboardData() {
     for (const t of technicians) m.set(t.id, t.commission);
     return m;
   }, [technicians]);
+
+  // Tech count
+  const activeTech = technicians.length;
 
   // Compute KPI metrics with decimal.js
   const metrics: DashboardMetrics = useMemo(() => {
@@ -361,6 +365,7 @@ export function useDashboardData() {
     technicians,
     techNameMap,
     techCommissionMap,
+    activeTech,
 
     // Computed data
     metrics,
