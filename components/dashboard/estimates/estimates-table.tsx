@@ -372,7 +372,7 @@ export function EstimatesTable({
                   <SortIcon col={key} />
                 </TableHead>
               ))}
-              <TableHead className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <TableHead className="text-center text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                 Actions
               </TableHead>
             </TableRow>
@@ -470,7 +470,7 @@ export function EstimatesTable({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7"
+                            className="h-7 w-7 p-0 text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-200"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <MoreHorizontal className="h-4 w-4" />

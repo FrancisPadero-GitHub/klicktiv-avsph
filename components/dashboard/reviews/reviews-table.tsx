@@ -12,16 +12,37 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  ChevronUp,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   ChevronDown,
+  ChevronUp,
   ChevronsUpDown,
+  MoreHorizontal,
+  Pencil,
   SlidersHorizontal,
+  Trash2,
   X,
 } from "lucide-react";
 import {
   useFetchReviewRecords,
   type ReviewRecordRow,
 } from "@/hooks/reviews/useFetchReviewRecords";
+import { useDelReviewRecord } from "@/hooks/reviews/useDelReviewRecords";
+import { ReviewViewDialog } from "./review-view-dialog";
+import { ReviewDeleteAlert } from "./review-delete-alert";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
@@ -57,6 +78,12 @@ export function ReviewsTable({ onEdit }: ReviewsTableProps) {
     isError,
     error,
   } = useFetchReviewRecords();
+  const { mutate: deleteReview } = useDelReviewRecord();
+
+  const [viewRecord, setViewRecord] = useState<ReviewRecordRow | null>(null);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("review_date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -79,14 +106,6 @@ export function ReviewsTable({ onEdit }: ReviewsTableProps) {
     () =>
       Array.from(
         new Set(records.map((r) => r.payment_method).filter(Boolean)),
-      ).sort() as string[],
-    [records],
-  );
-
-  const technicians = useMemo(
-    () =>
-      Array.from(
-        new Set(records.map((r) => r.technician_id).filter(Boolean)),
       ).sort() as string[],
     [records],
   );
@@ -148,11 +167,13 @@ export function ReviewsTable({ onEdit }: ReviewsTableProps) {
         );
       })
       .sort((a, b) => {
-        let av: any = a[sortKey as keyof ReviewRecordRow] ?? "";
-        let bv: any = b[sortKey as keyof ReviewRecordRow] ?? "";
+        const rawAv = a[sortKey as keyof ReviewRecordRow] ?? "";
+        const rawBv = b[sortKey as keyof ReviewRecordRow] ?? "";
 
-        if (typeof av === "string") av = av.toLowerCase();
-        if (typeof bv === "string") bv = bv.toLowerCase();
+        const av =
+          typeof rawAv === "string" ? rawAv.toLowerCase() : String(rawAv);
+        const bv =
+          typeof rawBv === "string" ? rawBv.toLowerCase() : String(rawBv);
 
         if (av < bv) return sortDir === "asc" ? -1 : 1;
         if (av > bv) return sortDir === "asc" ? 1 : -1;
@@ -169,23 +190,24 @@ export function ReviewsTable({ onEdit }: ReviewsTableProps) {
     paymentFilter,
   ]);
 
-  const SortIcon = ({ k }: { k: SortKey }) => {
-    if (sortKey !== k) return <ChevronsUpDown className="h-4 w-4" />;
-    return sortDir === "asc" ? (
-      <ChevronUp className="h-4 w-4" />
-    ) : (
-      <ChevronDown className="h-4 w-4" />
-    );
-  };
-
-  const handleSort = (k: SortKey) => {
+  function handleSort(k: SortKey) {
     if (sortKey === k) {
       setSortDir(sortDir === "asc" ? "desc" : "asc");
     } else {
       setSortKey(k);
       setSortDir("asc");
     }
-  };
+  }
+
+  function SortIcon({ col }: { col: SortKey }) {
+    if (sortKey !== col)
+      return <ChevronsUpDown className="ml-1 inline h-3 w-3 text-zinc-400" />;
+    return sortDir === "asc" ? (
+      <ChevronUp className="ml-1 inline h-3 w-3 text-zinc-600 dark:text-zinc-300" />
+    ) : (
+      <ChevronDown className="ml-1 inline h-3 w-3 text-zinc-600 dark:text-zinc-300" />
+    );
+  }
 
   return (
     <QueryStatePanel
@@ -300,64 +322,68 @@ export function ReviewsTable({ onEdit }: ReviewsTableProps) {
         )}
 
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="sticky top-0 border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-                <th className="px-4 py-3 text-left font-semibold text-zinc-900 dark:text-zinc-50">
-                  <button
-                    onClick={() => handleSort("review_date")}
-                    className="flex items-center gap-2 hover:text-zinc-700 dark:hover:text-zinc-300"
-                  >
-                    Date
-                    <SortIcon k="review_date" />
-                  </button>
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-zinc-900 dark:text-zinc-50">
-                  Finished Jobs
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-zinc-900 dark:text-zinc-50">
+        <div className="min-h-80 overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="sticky top-0 border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 hover:bg-white dark:hover:bg-zinc-900">
+                <TableHead
+                  onClick={() => handleSort("review_date")}
+                  className="cursor-pointer select-none text-xs font-semibold uppercase tracking-wide text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                >
+                  Date
+                  <SortIcon col="review_date" />
+                </TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                  Finished Job
+                </TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                   Job Name
-                </th>
-
-                <th className="px-4 py-3 text-left font-semibold text-zinc-900 dark:text-zinc-50">
+                </TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                   Review Type
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-zinc-900 dark:text-zinc-50">
+                </TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                   Payment
-                </th>
-                <th className="px-4 py-3 text-right font-semibold text-zinc-900 dark:text-zinc-50">
-                  <button
-                    onClick={() => handleSort("review_amount")}
-                    className="flex items-center justify-end gap-2 hover:text-zinc-700 dark:hover:text-zinc-300"
-                  >
-                    Amount
-                    <SortIcon k="review_amount" />
-                  </button>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+                </TableHead>
+                <TableHead
+                  onClick={() => handleSort("review_amount")}
+                  className="cursor-pointer select-none text-right text-xs font-semibold uppercase tracking-wide text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                >
+                  Amount
+                  <SortIcon col="review_amount" />
+                </TableHead>
+                <TableHead className="text-center text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                  Actions
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {filtered.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={8}
-                    className="py-8 text-center text-zinc-500 dark:text-zinc-400"
+                <TableRow>
+                  <TableCell
+                    colSpan={7}
+                    className="px-4 py-8 text-center text-sm text-zinc-400 dark:text-zinc-600"
                   >
-                    No reviews found
-                  </td>
-                </tr>
+                    No reviews match your filters.
+                  </TableCell>
+                </TableRow>
               ) : (
                 filtered.map((record) => (
-                  <tr
+                  <TableRow
                     key={record.review_id}
-                    onClick={() => onEdit(record)}
-                    className="cursor-pointer border-b border-zinc-100 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900/50"
+                    onClick={() => {
+                      setViewRecord(record);
+                      setViewOpen(true);
+                    }}
+                    className="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
                   >
-                    <td className="px-4 py-3 text-zinc-900 dark:text-zinc-50">
+                    {/* Date */}
+                    <TableCell className="whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
                       {formatDate(record.review_date)}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs text-zinc-600 dark:text-zinc-400">
+                    </TableCell>
+
+                    {/* Finished Job */}
+                    <TableCell className="font-mono text-xs text-zinc-600 dark:text-zinc-400">
                       {record.work_order_id ? (
                         <Link
                           href={`/dashboard/jobs?highlight=${record.work_order_id}`}
@@ -369,28 +395,97 @@ export function ReviewsTable({ onEdit }: ReviewsTableProps) {
                       ) : (
                         "—"
                       )}
-                    </td>
-                    <td className="px-4 py-3 text-zinc-900 dark:text-zinc-50">
-                      {record.work_title || "—"}
-                    </td>
+                    </TableCell>
 
-                    <td className="px-4 py-3">
+                    {/* Job Name */}
+                    <TableCell className="whitespace-nowrap font-medium text-zinc-800 dark:text-zinc-200">
+                      {record.work_title || "—"}
+                    </TableCell>
+
+                    {/* Review Type */}
+                    <TableCell>
                       <span className="inline-flex rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                         {record.review_type || "—"}
                       </span>
-                    </td>
-                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
+                    </TableCell>
+
+                    {/* Payment */}
+                    <TableCell className="whitespace-nowrap text-sm text-zinc-600 dark:text-zinc-400">
                       {record.payment_method || "—"}
-                    </td>
-                    <td className="px-4 py-3 text-right font-semibold text-zinc-900 dark:text-zinc-50">
+                    </TableCell>
+
+                    {/* Amount */}
+                    <TableCell className="text-right font-semibold text-zinc-900 dark:text-zinc-50">
                       {fmt(record.review_amount ?? 0)}
-                    </td>
-                  </tr>
+                    </TableCell>
+
+                    {/* Actions */}
+                    <TableCell
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-center"
+                    >
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0 text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-200"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-36">
+                          <DropdownMenuItem
+                            onClick={() => onEdit(record)}
+                            className="cursor-pointer gap-2"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => {
+                              if (record.review_id)
+                                setConfirmDeleteId(record.review_id);
+                            }}
+                            className="cursor-pointer gap-2 text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
+
+        <ReviewViewDialog
+          record={viewRecord}
+          open={viewOpen}
+          onOpenChange={setViewOpen}
+          onEdit={() => {
+            if (!viewRecord) return;
+            onEdit(viewRecord);
+          }}
+          onDelete={() => {
+            if (viewRecord?.review_id) setConfirmDeleteId(viewRecord.review_id);
+          }}
+        />
+
+        <ReviewDeleteAlert
+          open={!!confirmDeleteId}
+          onOpenChange={(open) => !open && setConfirmDeleteId(null)}
+          onConfirm={() => {
+            if (confirmDeleteId) deleteReview(confirmDeleteId);
+            setConfirmDeleteId(null);
+            setViewOpen(false);
+          }}
+        />
       </div>
     </QueryStatePanel>
   );
