@@ -41,22 +41,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [queryClient]);
 
+  // Refetches to the user id and company_id changes
   useEffect(() => {
     const userId = session?.user?.id;
-    if (!userId) {
+    const companyId = session?.user?.app_metadata?.company_id as
+      | string
+      | undefined;
+
+    if (!userId || !companyId) {
       return;
     }
 
     void queryClient.prefetchQuery({
-      queryKey: profileQueryKey(userId),
-      queryFn: () => fetchProfileById(userId),
+      queryKey: [...profileQueryKey(userId), companyId],
+      queryFn: () => fetchProfileById(userId, companyId),
     });
-  }, [queryClient, session?.user?.id]);
+  }, [queryClient, session?.user?.id, session?.user?.app_metadata?.company_id]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user: session?.user ?? null,
       session: session ?? null,
+      role: session?.user?.app_metadata?.role ?? null,
       isLoading: isLoading || isFetching,
       signOut: signOutApi,
     }),

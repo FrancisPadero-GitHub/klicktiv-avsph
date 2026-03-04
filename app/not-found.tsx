@@ -1,4 +1,4 @@
-import Link from "next/link";
+"use client";
 import { FileQuestion, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -26,11 +26,17 @@ export default function NotFound() {
       </div>
 
       {/* Action */}
-      <Button asChild>
-        <Link href="/dashboard" className="gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back to dashboard
-        </Link>
+      <Button
+        type="button"
+        className="gap-2"
+        onClick={() =>
+          window.history.length > 1
+            ? window.history.back()
+            : window.location.assign("/dashboard")
+        }
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Go back
       </Button>
     </div>
   );

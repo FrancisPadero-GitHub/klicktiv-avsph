@@ -23,7 +23,6 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
-
   useEffect(() => {
     if (!isLoading && !user) {
       router.replace(redirectTo);
