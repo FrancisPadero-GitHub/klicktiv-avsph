@@ -54,34 +54,35 @@ export function ReviewSummaryCards() {
         color: "text-blue-600 dark:text-blue-400",
         bg: "bg-blue-50 dark:bg-blue-900/20",
       },
-      {
-        title: "Avg / Reviewed Job",
-        value: fmt(summaryData?.avg_amount_per_reviewed_job ?? 0),
-        icon: CircleDollarSign,
-        color: "text-violet-600 dark:text-violet-400",
-        bg: "bg-violet-50 dark:bg-violet-900/20",
-      },
-      {
-        title: "Min Review Amount",
-        value: fmt(summaryData?.min_review_amount ?? 0),
-        icon: TrendingDown,
-        color: "text-amber-600 dark:text-amber-400",
-        bg: "bg-amber-50 dark:bg-amber-900/20",
-      },
-      {
-        title: "Coverage Ratio",
-        value: pct(summaryData?.review_coverage_ratio ?? 0),
-        icon: ClipboardCheck,
-        color: "text-cyan-600 dark:text-cyan-400",
-        bg: "bg-cyan-50 dark:bg-cyan-900/20",
-      },
-      {
-        title: "Total Done Jobs",
-        value: num(summaryData?.total_done_jobs ?? 0),
-        icon: BriefcaseBusiness,
-        color: "text-zinc-900 dark:text-zinc-50",
-        bg: "bg-zinc-100 dark:bg-zinc-800",
-      },
+      // FOR SOME REASON THIS WAS REMOVED IN THE LATEST SCHEMA UPDATE, CAN ADD BACK IF NEEDED
+      // {
+      //   title: "Avg / Reviewed Job",
+      //   value: fmt(summaryData?.avg_amount_per_reviewed_job ?? 0),
+      //   icon: CircleDollarSign,
+      //   color: "text-violet-600 dark:text-violet-400",
+      //   bg: "bg-violet-50 dark:bg-violet-900/20",
+      // },
+      // {
+      //   title: "Min Review Amount",
+      //   value: fmt(summaryData?.min_review_amount ?? 0),
+      //   icon: TrendingDown,
+      //   color: "text-amber-600 dark:text-amber-400",
+      //   bg: "bg-amber-50 dark:bg-amber-900/20",
+      // },
+      // {
+      //   title: "Coverage Ratio",
+      //   value: pct(summaryData?.review_coverage_ratio ?? 0),
+      //   icon: ClipboardCheck,
+      //   color: "text-cyan-600 dark:text-cyan-400",
+      //   bg: "bg-cyan-50 dark:bg-cyan-900/20",
+      // },
+      // {
+      //   title: "Total Done Jobs",
+      //   value: num(summaryData?.total_done_jobs ?? 0),
+      //   icon: BriefcaseBusiness,
+      //   color: "text-zinc-900 dark:text-zinc-50",
+      //   bg: "bg-zinc-100 dark:bg-zinc-800",
+      // },
       {
         title: "Jobs With Reviews",
         value: num(summaryData?.total_jobs_with_reviews ?? 0),
@@ -107,7 +108,7 @@ export function ReviewSummaryCards() {
       errorMessage={error?.message}
       loadingMessage="Loading review summary..."
     >
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-4">
         {cards.map(({ title, value, icon: Icon, color, bg }) => (
           <div
             key={title}
