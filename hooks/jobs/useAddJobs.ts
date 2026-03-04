@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/components/auth-provider";
 import { supabase } from "@/lib/supabase";
 import type { Database } from "@/database.types";
 
@@ -40,8 +41,29 @@ const dbAddJob = async (payload: AddJobPayload) => {
 
 export function useAddJob() {
   const queryClient = useQueryClient();
+  const { session } = useAuth();
+
   return useMutation({
-    mutationFn: dbAddJob,
+    mutationFn: async (payload: AddJobPayload) => {
+      const companyId = session?.user?.app_metadata?.company_id as
+        | string
+        | undefined;
+
+      if (!companyId) {
+        throw new Error("Company ID is missing from user session");
+      }
+
+      return dbAddJob({
+        workOrder: {
+          ...payload.workOrder,
+          company_id: companyId,
+        },
+        job: {
+          ...payload.job,
+          company_id: companyId,
+        },
+      });
+    },
     onSuccess: async (result) => {
       console.log("Job added successfully:", result);
       await queryClient.invalidateQueries({

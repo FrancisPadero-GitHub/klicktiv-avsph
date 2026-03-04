@@ -35,12 +35,6 @@ type CreateUserResponse = {
 export function useCreateUser() {
   const { session } = useAuth();
 
-  const company_id = session?.user?.app_metadata?.company_id;
-
-  if (company_id === undefined) {
-    throw new Error("Company ID is missing from user session");
-  }
-
   return useMutation({
     mutationFn: async ({
       email,
@@ -52,6 +46,14 @@ export function useCreateUser() {
       avatar_url,
       website,
     }: CreateUserInput) => {
+      const companyId = session?.user?.app_metadata?.company_id as
+        | string
+        | undefined;
+
+      if (!companyId) {
+        throw new Error("Company ID is missing from user session");
+      }
+
       const accessToken = session?.access_token;
       if (!accessToken) {
         throw new Error("Admin is not authenticated");
@@ -76,7 +78,7 @@ export function useCreateUser() {
           body: JSON.stringify({
             email,
             password,
-            company_id,
+            company_id: companyId,
           }),
         },
       );
@@ -135,7 +137,7 @@ export function useCreateUser() {
       const { error: companyUsers } = await supabase
         .from("company_users")
         .insert({
-          company_id,
+          company_id: companyId,
           user_id: newUserId,
           role: profileRole,
         });
