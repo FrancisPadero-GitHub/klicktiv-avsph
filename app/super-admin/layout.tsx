@@ -22,7 +22,7 @@ import { useLogout } from "@/hooks/auth/useLogout";
 const navItems = [
   { href: "/super-admin", label: "Overview", icon: LayoutDashboard },
   { href: "/super-admin/companies", label: "Companies", icon: Building2 },
-  { href: "/super-admin/company-users", label: "Users", icon: Users },
+  // { href: "/super-admin/company-users", label: "Users", icon: Users },
 ];
 
 export default function SuperAdminLayout({

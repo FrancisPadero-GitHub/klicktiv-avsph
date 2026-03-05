@@ -477,6 +477,15 @@ export function LogJobDialog({ showTrigger = true }: LogJobDialogProps) {
                       {...register("parts_total_cost", {
                         min: { value: 0, message: "Parts cost must be ≥ 0" },
                         valueAsNumber: true,
+                        validate: (value, formValues) => {
+                          const subtotal = Number(formValues.subtotal) || 0;
+                          const partsCost = Number(value) || 0;
+
+                          if (partsCost > subtotal) {
+                            return "Parts cost cannot be more than the subtotal!";
+                          }
+                          return true;
+                        },
                       })}
                     />
                     {errors.parts_total_cost && (
