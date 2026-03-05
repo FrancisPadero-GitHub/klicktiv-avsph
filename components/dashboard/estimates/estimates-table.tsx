@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import {
@@ -26,6 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   ChevronUp,
   ChevronDown,
@@ -39,6 +40,7 @@ import {
 import type { EstimateStatus } from "@/types/estimate";
 import type { EstimatesRow } from "@/hooks/estimates/useFetchEstimates";
 import { useDelEstimate } from "@/hooks/estimates/useDelEstimate";
+import { useBulkDelEstimates } from "@/hooks/estimates/useBulkDelEstimates";
 import { EstimateViewDialog } from "@/components/dashboard/estimates/estimate-view-dialog";
 import { EstimateDeleteAlert } from "@/components/dashboard/estimates/estimate-delete-alert";
 
@@ -97,11 +99,14 @@ export function EstimatesTable({
   onEdit,
 }: EstimatesTableProps) {
   const { mutate: deleteEstimate } = useDelEstimate();
+  const { mutate: bulkDeleteEstimates } = useBulkDelEstimates();
 
   const [viewEstimate, setViewEstimate] =
     useState<EstimatesRowWithNotes | null>(null);
   const [viewOpen, setViewOpen] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [technicianFilter, setTechnicianFilter] =
@@ -143,7 +148,38 @@ export function EstimatesTable({
     setEndDate("");
     setStatusFilter("all");
     setTechnicianFilter("all");
+    setSelectedIds(new Set());
   }
+
+  const updateSearch = useCallback((v: string) => {
+    setSearch(v);
+    setSelectedIds(new Set());
+  }, []);
+  const updateStartDate = useCallback((v: string) => {
+    setStartDate(v);
+    setSelectedIds(new Set());
+  }, []);
+  const updateEndDate = useCallback((v: string) => {
+    setEndDate(v);
+    setSelectedIds(new Set());
+  }, []);
+  const updateStatusFilter = useCallback((v: StatusFilter) => {
+    setStatusFilter(v);
+    setSelectedIds(new Set());
+  }, []);
+  const updateTechnicianFilter = useCallback((v: DynamicFilter) => {
+    setTechnicianFilter(v);
+    setSelectedIds(new Set());
+  }, []);
+
+  const toggleRow = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -231,6 +267,17 @@ export function EstimatesTable({
     sortDir,
   ]);
 
+  const toggleAll = useCallback(() => {
+    setSelectedIds((prev) => {
+      const filteredIds = filtered
+        .map((e) => e.work_order_id)
+        .filter((id): id is string => !!id);
+      const allSelected =
+        filteredIds.length > 0 && filteredIds.every((id) => prev.has(id));
+      return allSelected ? new Set<string>() : new Set(filteredIds);
+    });
+  }, [filtered]);
+
   function handleSort(key: SortKey) {
     if (sortKey === key) {
       setSortDir(sortDir === "asc" ? "desc" : "asc");
@@ -300,14 +347,14 @@ export function EstimatesTable({
           <Input
             placeholder="Search title, technician, status, address..."
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => updateSearch(event.target.value)}
             className="h-8 w-full text-sm sm:w-64"
           />
 
           <Input
             type="date"
             value={startDate}
-            onChange={(event) => setStartDate(event.target.value)}
+            onChange={(event) => updateStartDate(event.target.value)}
             className="h-8 w-full text-sm sm:w-40"
             title="Start date"
           />
@@ -315,14 +362,14 @@ export function EstimatesTable({
           <Input
             type="date"
             value={endDate}
-            onChange={(event) => setEndDate(event.target.value)}
+            onChange={(event) => updateEndDate(event.target.value)}
             className="h-8 w-full text-sm sm:w-40"
             title="End date"
           />
 
           <Select
             value={statusFilter}
-            onValueChange={(value) => setStatusFilter(value as StatusFilter)}
+            onValueChange={(value) => updateStatusFilter(value as StatusFilter)}
           >
             <SelectTrigger size="sm" className="w-full sm:w-40">
               <SelectValue placeholder="Status" />
@@ -337,7 +384,7 @@ export function EstimatesTable({
 
           <Select
             value={technicianFilter}
-            onValueChange={(value) => setTechnicianFilter(value)}
+            onValueChange={(value) => updateTechnicianFilter(value)}
           >
             <SelectTrigger size="sm" className="w-full sm:w-44">
               <SelectValue placeholder="Technician" />
@@ -354,10 +401,52 @@ export function EstimatesTable({
         </div>
       )}
 
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-3 border-b border-zinc-200 bg-zinc-50 px-4 py-2.5 dark:border-zinc-800 dark:bg-zinc-800/50">
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            {selectedIds.size} selected
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSelectedIds(new Set())}
+            className="h-7 gap-1.5 text-xs"
+          >
+            <X className="h-3 w-3" />
+            Clear
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setConfirmBulkDelete(true)}
+            className="h-7 gap-1.5 text-xs"
+          >
+            <Trash2 className="h-3 w-3" />
+            Delete ({selectedIds.size})
+          </Button>
+        </div>
+      )}
+
       <div className="min-h-96 max-h-150 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="sticky top-0 border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 hover:bg-white dark:hover:bg-zinc-900">
+              <TableHead
+                className="w-10 px-3"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Checkbox
+                  checked={
+                    filtered.length > 0 &&
+                    filtered.every(
+                      (e) =>
+                        e.work_order_id && selectedIds.has(e.work_order_id),
+                    )
+                  }
+                  onCheckedChange={toggleAll}
+                  aria-label="Select all"
+                />
+              </TableHead>
               {(
                 [
                   { key: "work_id", label: "ID" },
@@ -389,7 +478,7 @@ export function EstimatesTable({
             {filtered.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={10}
+                  colSpan={11}
                   className="px-4 py-8 text-center text-sm text-zinc-400 dark:text-zinc-600"
                 >
                   No estimates match your filters.
@@ -412,8 +501,29 @@ export function EstimatesTable({
                       setViewEstimate(estimate);
                       setViewOpen(true);
                     }}
-                    className="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                    className={cn(
+                      "cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50",
+                      estimate.work_order_id &&
+                        selectedIds.has(estimate.work_order_id) &&
+                        "bg-blue-50 dark:bg-blue-950/20",
+                    )}
                   >
+                    <TableCell
+                      className="w-10 px-3"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Checkbox
+                        checked={
+                          !!estimate.work_order_id &&
+                          selectedIds.has(estimate.work_order_id)
+                        }
+                        onCheckedChange={() =>
+                          estimate.work_order_id &&
+                          toggleRow(estimate.work_order_id)
+                        }
+                        aria-label={`Select ${estimate.work_title ?? "estimate"}`}
+                      />
+                    </TableCell>
                     <TableCell className="whitespace-nowrap  text-zinc-500 dark:text-zinc-400">
                       {shortId(estimate.work_order_id ?? "—")}
                     </TableCell>
@@ -544,6 +654,16 @@ export function EstimatesTable({
           if (confirmDeleteId) deleteEstimate(confirmDeleteId);
           setConfirmDeleteId(null);
           setViewOpen(false);
+        }}
+      />
+
+      <EstimateDeleteAlert
+        open={confirmBulkDelete}
+        onOpenChange={(open) => !open && setConfirmBulkDelete(false)}
+        onConfirm={() => {
+          bulkDeleteEstimates(Array.from(selectedIds));
+          setSelectedIds(new Set());
+          setConfirmBulkDelete(false);
         }}
       />
     </div>
