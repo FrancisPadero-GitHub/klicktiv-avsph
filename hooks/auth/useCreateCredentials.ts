@@ -1,8 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/components/auth-provider";
-import { supabase } from "@/lib/supabase";
-
-// For the RLS parameters use this:   (( SELECT auth.uid() AS uid) = id)
+import { getValidAccessToken } from "@/lib/auth";
+import { toast } from "sonner";
 
 // Make sure this does have the same fields as the create_user/admin edge function input
 type CreateRole = "user" | "admin";
@@ -39,7 +38,7 @@ export function useCreateUser() {
     mutationFn: async ({
       email,
       password,
-      role = "user",
+      role = "user", // not being used on the edge Function yet
       f_name,
       l_name,
       username,
@@ -52,37 +51,33 @@ export function useCreateUser() {
 
       if (!companyId)
         throw new Error("Company ID is missing from user session");
-      const accessToken = session?.access_token;
-      if (!accessToken) throw new Error("Admin is not authenticated");
-
-      const edgeFunction = role === "admin" ? "create_admin" : "create_users";
+      // Get a valid access token (refreshing the session if needed) before calling the Edge Function
+      const accessToken = await getValidAccessToken();
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
       if (!supabaseUrl)
         throw new Error("NEXT_PUBLIC_SUPABASE_URL is not configured");
 
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/${edgeFunction}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          // Pass ALL required profile data to the Edge Function
-          body: JSON.stringify({
-            email,
-            password,
-            company_id: companyId,
-            role,
-            f_name,
-            l_name,
-            username,
-            avatar_url,
-            website,
-          }),
+      const response = await fetch(`${supabaseUrl}/functions/v1/create_users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        // Pass ALL required profile data to the Edge Function
+        // Profile & Company Users are created together in the Edge Function
+        body: JSON.stringify({
+          email,
+          password,
+          company_id: companyId,
+          role,
+          f_name,
+          l_name,
+          username,
+          avatar_url,
+          website,
+        }),
+      });
 
       const text = await response.text();
       let json: CreateUserResponse = {};
@@ -114,12 +109,11 @@ export function useCreateUser() {
       };
     },
     onSuccess: () => {
-      console.log("User and profile created successfully via Edge Function");
+      toast.success("User and profile created successfully.");
     },
     onError: (error) => {
-      console.error(
-        "Error creating user:",
-        error instanceof Error ? error.message : error,
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create user",
       );
     },
   });

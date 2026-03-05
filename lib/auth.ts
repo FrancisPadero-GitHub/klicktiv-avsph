@@ -63,3 +63,44 @@ export async function getCurrentUser() {
   if (error) throw error;
   return user;
 }
+
+// used for
+// Buffer time (in seconds) before token expiry to proactively refresh the session
+// This is to avoid any JWT expiry issues during active use, especially for longer sessions.
+
+const TOKEN_REFRESH_BUFFER_SECONDS = 60;
+
+function isSessionExpiringSoon(expiresAt?: number | null) {
+  if (!expiresAt) return true;
+  const nowInSeconds = Math.floor(Date.now() / 1000);
+  return expiresAt - nowInSeconds <= TOKEN_REFRESH_BUFFER_SECONDS;
+}
+
+/**
+ * Returns a valid access token for outgoing authenticated requests.
+ * Refreshes the session when it is missing or near expiry.
+ */
+export async function getValidAccessToken() {
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error) throw error;
+
+  if (session && !isSessionExpiringSoon(session.expires_at)) {
+    return session.access_token;
+  }
+
+  const {
+    data: { session: refreshedSession },
+    error: refreshError,
+  } = await supabase.auth.refreshSession();
+
+  if (refreshError) throw refreshError;
+  if (!refreshedSession?.access_token) {
+    throw new Error("Admin is not authenticated");
+  }
+
+  return refreshedSession.access_token;
+}

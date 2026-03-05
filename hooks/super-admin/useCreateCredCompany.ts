@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/components/auth-provider";
+import { getValidAccessToken } from "@/lib/auth";
 import { toast } from "sonner";
 
 export type CreateCompanyInput = {
@@ -32,15 +33,12 @@ export function useCreateCompany() {
       email,
       password,
     }: CreateCompanyInput) => {
-      const accessToken = session?.access_token;
-      if (!accessToken) {
-        throw new Error("Admin is not authenticated");
-      }
+      // Get a valid access token (refreshing the session if needed) before calling the Edge Function
+      const accessToken = await getValidAccessToken();
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-      if (!supabaseUrl) {
+      if (!supabaseUrl)
         throw new Error("NEXT_PUBLIC_SUPABASE_URL is not configured");
-      }
 
       const response = await fetch(
         `${supabaseUrl}/functions/v1/create_company`,
