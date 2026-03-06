@@ -85,6 +85,9 @@ function UpdateCompanyDialog({
   companyId: string;
   currentName: string;
 }) {
+  const { role } = useAuth();
+  const isAdmin = role === "company" || role === "super_admin";
+
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(currentName);
   const [loading, setLoading] = useState(false);
@@ -131,10 +134,12 @@ function UpdateCompanyDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline">
-          <Pencil className="mr-2 h-3.5 w-3.5" />
-          Edit
-        </Button>
+        {isAdmin && (
+          <Button size="sm" variant="outline">
+            <Pencil className="mr-2 h-3.5 w-3.5" />
+            Edit
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

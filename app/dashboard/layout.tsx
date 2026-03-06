@@ -40,7 +40,6 @@ const navItems = [
     href: "/dashboard/settings",
     label: "Settings",
     icon: Settings,
-    adminOnly: true,
   },
 ];
 
@@ -50,6 +49,7 @@ interface SidebarContentProps {
   visibleNavItems: typeof navItems;
   user: { email?: string | null } | null;
   logoutMutation: { mutate: () => void; isPending: boolean };
+  company: string;
   onClose: () => void;
 }
 
@@ -59,6 +59,7 @@ function SidebarContent({
   visibleNavItems,
   user,
   logoutMutation,
+  company,
   onClose,
 }: SidebarContentProps) {
   return (
@@ -108,11 +109,23 @@ function SidebarContent({
       </nav>
 
       {/* User & Logout */}
-      <div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
+      <div className="border-t border-zinc-200 p-4 dark:border-zinc-800 space-y-3">
         {user && (
-          <p className="mb-2 truncate text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            {user.email || "Something went wrong"}
-          </p>
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Avatar */}
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-zinc-50 text-xs font-semibold dark:bg-zinc-50 dark:text-zinc-900">
+              {(user.email?.[0] ?? "?").toUpperCase()}
+            </div>
+            {/* Info */}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-semibold text-zinc-900 dark:text-zinc-50 leading-tight">
+                {company}
+              </p>
+              <p className="truncate text-xs text-zinc-400 dark:text-zinc-500 leading-tight mt-0.5">
+                {user.email || "Something went wrong"}
+              </p>
+            </div>
+          </div>
         )}
         <button
           onClick={() => logoutMutation.mutate()}
@@ -154,9 +167,7 @@ export default function DashboardLayout({
   // Admins can see all nav items; non-admins have some items hidden and are redirected if they try to access those routes
   const isAdmin = role === "company" || role === "super_admin";
 
-  const isRestrictedRoute =
-    pathname.startsWith("/dashboard/technicians") ||
-    pathname.startsWith("/dashboard/settings");
+  const isRestrictedRoute = pathname.startsWith("/dashboard/technicians");
 
   const visibleNavItems = useMemo(
     () => navItems.filter((item) => !item.adminOnly || isAdmin),
@@ -185,6 +196,7 @@ export default function DashboardLayout({
               visibleNavItems={visibleNavItems}
               user={user}
               logoutMutation={logoutMutation}
+              company={companyName}
               onClose={() => setSidebarOpen(false)}
             />
           </aside>
@@ -217,6 +229,7 @@ export default function DashboardLayout({
               visibleNavItems={visibleNavItems}
               user={user}
               logoutMutation={logoutMutation}
+              company={companyName}
               onClose={() => setSidebarOpen(false)}
             />
           </aside>

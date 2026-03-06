@@ -11,6 +11,7 @@ import {
   useSettingsStore,
   type SettingsTab,
 } from "@/features/store/settings/useSettingStore";
+import { useAuth } from "@/components/auth-provider";
 
 const tabs: Array<{
   id: SettingsTab;
@@ -46,6 +47,30 @@ const tabs: Array<{
 
 export default function SettingsPage() {
   const { activeTab, setActiveTab } = useSettingsStore();
+  const { role } = useAuth();
+  const isAdmin = role === "company" || role === "super_admin";
+
+  const visibleTabs = React.useMemo(() => {
+    return tabs.filter((tab) => {
+      if (
+        tab.id === "payment-methods" ||
+        tab.id === "review-types" ||
+        tab.id === "profiles"
+      ) {
+        return isAdmin;
+      }
+      return true;
+    });
+  }, [isAdmin]);
+
+  React.useEffect(() => {
+    if (
+      visibleTabs.length > 0 &&
+      !visibleTabs.find((t) => t.id === activeTab)
+    ) {
+      setActiveTab(visibleTabs[0].id);
+    }
+  }, [visibleTabs, activeTab, setActiveTab]);
 
   return (
     <div className="space-y-8">
@@ -54,14 +79,16 @@ export default function SettingsPage() {
           Settings
         </h1>
         <p className="text-muted-foreground mt-1">
-          Manage your business configuration
+          {isAdmin
+            ? "Manage your business configuration"
+            : "Update your login information here"}
         </p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-6">
         {/* Sidebar tabs */}
         <nav className="flex sm:flex-col gap-1 sm:w-52 shrink-0">
-          {tabs.map(({ id, label, icon: Icon, description }) => (
+          {visibleTabs.map(({ id, label, icon: Icon, description }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
