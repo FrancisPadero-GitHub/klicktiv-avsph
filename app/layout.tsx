@@ -37,7 +37,7 @@ export default function RootLayout({
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
-            themes={["light", "dark", "bubblegum", "caffeine"]}
+            themes={["light", "dark", "caffeine_light", "caffeine_dark"]}
             disableTransitionOnChange
           >
             <AuthProvider>{children}</AuthProvider>

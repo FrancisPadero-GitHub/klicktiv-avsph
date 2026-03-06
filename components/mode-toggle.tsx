@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
-import { Sun, Moon, Sparkles, Coffee, ChevronDown } from "lucide-react";
+import { Sun, Moon, Coffee, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,8 +13,8 @@ import {
 const THEMES = [
   { value: "light", label: "Light", icon: Sun },
   { value: "dark", label: "Dark", icon: Moon },
-  { value: "bubblegum", label: "Bubblegum", icon: Sparkles },
-  { value: "caffeine", label: "Caffeine", icon: Coffee },
+  { value: "caffeine_light", label: "Caffeine Light", icon: Coffee },
+  { value: "caffeine_dark", label: "Caffeine Dark", icon: Coffee },
 ] as const;
 
 // type ThemeValue = (typeof THEMES)[number]["value"];
