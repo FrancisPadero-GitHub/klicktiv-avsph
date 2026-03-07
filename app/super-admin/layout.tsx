@@ -10,6 +10,7 @@ import {
   X,
   LogOut,
   Loader2,
+  ScrollText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -22,6 +23,7 @@ import type { User } from "@supabase/supabase-js";
 const navItems = [
   { href: "/super-admin", label: "Overview", icon: LayoutDashboard },
   { href: "/super-admin/companies", label: "Companies", icon: Building2 },
+  { href: "/super-admin/feedbacks", label: "Feedbacks", icon: ScrollText },
 ];
 
 function SidebarContent({
