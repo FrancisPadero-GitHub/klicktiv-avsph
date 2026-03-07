@@ -149,7 +149,7 @@ export function JobViewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden">
+      <DialogContent className="flex max-h-[90vh] w-full sm:max-w-4xl flex-col overflow-hidden">
         <DialogHeader>
           <div className="flex items-start justify-between gap-3 pr-6">
             <div className="min-w-0">
@@ -210,8 +210,8 @@ export function JobViewDialog({
 
           {/* Details grid */}
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            {/* Left column */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            {/* Left column - Text info details */}
             <div className="space-y-4">
               {/* Technician */}
               <InfoRow icon={User} label="Technician">
@@ -240,10 +240,18 @@ export function JobViewDialog({
               <InfoRow icon={Tag} label="Category">
                 {job.category ?? "—"}
               </InfoRow>
+            </div>
 
+            {/* Center column - Contact info */}
+            <div className="space-y-4">
               {/* Contact Number */}
               <InfoRow icon={Phone} label="Contact Number">
                 {job.contact_no ?? "—"}
+              </InfoRow>
+
+              {/* Contact Email */}
+              <InfoRow icon={Mail} label="Contact Email">
+                {job.contact_email ?? "—"}
               </InfoRow>
 
               {/* Payment */}
@@ -260,7 +268,7 @@ export function JobViewDialog({
               </InfoRow>
             </div>
 
-            {/* Right column */}
+            {/* Right column - Numbers */}
             <div className="space-y-4">
               {/* Tip */}
               <InfoRow icon={DollarSign} label="Tip">
@@ -272,11 +280,6 @@ export function JobViewDialog({
                 {fmt(job.net_revenue ?? 0)}
               </InfoRow>
 
-              {/* Contact Email */}
-              <InfoRow icon={Mail} label="Contact Email">
-                {job.contact_email ?? "—"}
-              </InfoRow>
-
               {/* Marked done at */}
               <InfoRow icon={Star} label="Marked done at">
                 {fmtDateTime(job.promoted_at)}
@@ -286,17 +289,17 @@ export function JobViewDialog({
               <InfoRow icon={Clock3} label="Last Updated">
                 {fmtDateTime(job.updated_at)}
               </InfoRow>
-
-              {/* Description */}
-              <InfoRow icon={FileText} label="Description">
-                {job.description ? (
-                  <p className="whitespace-pre-wrap">{job.description}</p>
-                ) : (
-                  <span className="text-zinc-400 dark:text-zinc-500">—</span>
-                )}
-              </InfoRow>
             </div>
           </div>
+
+          {/* Description */}
+          <InfoRow icon={FileText} label="Description">
+            {job.description ? (
+              <p className="whitespace-pre-wrap">{job.description}</p>
+            ) : (
+              <span className="text-zinc-400 dark:text-zinc-500">—</span>
+            )}
+          </InfoRow>
 
           {/* Notes */}
           {job.notes && (

@@ -117,81 +117,114 @@ export function EstimateViewDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto py-2 pr-2">
-          <InfoRow icon={Calendar} label="Date">
-            {estimate.work_order_date
-              ? new Date(estimate.work_order_date).toLocaleDateString()
-              : "—"}
-          </InfoRow>
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto py-2 pr-2">
+          {/* Details grid */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            {/* Left column - Text info details */}
+            <div className="space-y-4">
+              {/* Date */}
+              <InfoRow icon={Calendar} label="Date">
+                {estimate.work_order_date
+                  ? new Date(estimate.work_order_date).toLocaleDateString()
+                  : "—"}
+              </InfoRow>
 
-          <InfoRow icon={MapPin} label="Address">
-            {estimate.address ?? "—"}
-            {estimate.region && (
-              <span className="ml-1.5 text-xs text-zinc-400 dark:text-zinc-500">
-                {estimate.region}
-              </span>
-            )}
-          </InfoRow>
+              {/* Address */}
+              <InfoRow icon={MapPin} label="Address">
+                {estimate.address ?? "—"}
+                {estimate.region && (
+                  <span className="ml-1.5 text-xs text-zinc-400 dark:text-zinc-500">
+                    {estimate.region}
+                  </span>
+                )}
+              </InfoRow>
 
-          <InfoRow icon={Phone} label="Contact Number">
-            {estimate.contact_no ?? "—"}
-          </InfoRow>
+              {/* Technician */}
+              <InfoRow icon={User} label="Technician">
+                {techName ?? "—"}
+              </InfoRow>
 
-          <InfoRow icon={Mail} label="Contact Email">
-            {estimate.contact_email ?? "—"}
-          </InfoRow>
+              {/* Category */}
+              {estimate.category && (
+                <InfoRow icon={Tag} label="Category">
+                  {estimate.category}
+                </InfoRow>
+              )}
+            </div>
 
-          <InfoRow icon={User} label="Technician">
-            {techName ?? "—"}
-          </InfoRow>
+            {/* Center column - Contact info */}
+            <div className="space-y-4">
+              {/* Contact Number */}
+              <InfoRow icon={Phone} label="Contact Number">
+                {estimate.contact_no ?? "—"}
+              </InfoRow>
 
-          {estimate.category && (
-            <InfoRow icon={Tag} label="Category">
-              {estimate.category}
-            </InfoRow>
-          )}
+              {/* Contact Email */}
+              <InfoRow icon={Mail} label="Contact Email">
+                {estimate.contact_email ?? "—"}
+              </InfoRow>
 
+              {/* Handled By */}
+              <InfoRow icon={BadgeCheck} label="Handled By">
+                {estimate.handled_by ?? "—"}
+              </InfoRow>
+            </div>
+
+            {/* Right column - Numbers & status */}
+            <div className="space-y-4">
+              {/* Estimated Amount */}
+              <InfoRow icon={DollarSign} label="Estimated Amount">
+                <span className="font-semibold text-blue-600 dark:text-blue-400">
+                  {fmt(Number(estimate.estimated_amount ?? 0))}
+                </span>
+              </InfoRow>
+
+              {/* Status */}
+              <InfoRow icon={ClipboardCheck} label="Status">
+                {statusKey ? (
+                  <span
+                    className={cn(
+                      "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
+                      statusStyles[statusKey],
+                    )}
+                  >
+                    {statusLabels[statusKey]}
+                  </span>
+                ) : (
+                  "—"
+                )}
+              </InfoRow>
+
+              {/* Last Updated */}
+              <InfoRow icon={Clock3} label="Last Updated">
+                {fmtDateTime(estimate.updated_at)}
+              </InfoRow>
+
+              {/* Promoted At */}
+              <InfoRow icon={Clock3} label="Promoted At">
+                {fmtDateTime(estimate.promoted_at)}
+              </InfoRow>
+            </div>
+          </div>
+
+          {/* Description */}
           <InfoRow icon={FileText} label="Description">
             {estimate.description ?? "—"}
           </InfoRow>
 
-          <InfoRow icon={DollarSign} label="Estimated Amount">
-            <span className="font-semibold text-blue-600 dark:text-blue-400">
-              {fmt(Number(estimate.estimated_amount ?? 0))}
-            </span>
-          </InfoRow>
-
-          <InfoRow icon={ClipboardCheck} label="Status">
-            {statusKey ? (
-              <span
-                className={cn(
-                  "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
-                  statusStyles[statusKey],
-                )}
-              >
-                {statusLabels[statusKey]}
-              </span>
-            ) : (
-              "—"
-            )}
-          </InfoRow>
-
-          <InfoRow icon={BadgeCheck} label="Handled By">
-            {estimate.handled_by ?? "—"}
-          </InfoRow>
-
-          <InfoRow icon={Clock3} label="Last Updated">
-            {fmtDateTime(estimate.updated_at)}
-          </InfoRow>
-
-          <InfoRow icon={Clock3} label="Promoted At">
-            {fmtDateTime(estimate.promoted_at)}
-          </InfoRow>
-
+          {/* Notes */}
           {estimate.notes && (
-            <InfoRow icon={StickyNote} label="Notes">
-              {estimate.notes}
-            </InfoRow>
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50">
+              <div className="mb-1.5 flex items-center gap-2">
+                <StickyNote className="h-3.5 w-3.5 text-zinc-400" />
+                <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+                  Notes
+                </span>
+              </div>
+              <p className="whitespace-pre-wrap text-sm text-zinc-700 dark:text-zinc-300">
+                {estimate.notes}
+              </p>
+            </div>
           )}
         </div>
 
