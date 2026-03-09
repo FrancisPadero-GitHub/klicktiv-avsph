@@ -37,7 +37,7 @@ export default function GlobalError({
           )}
         </div>
 
-        {/* Action — no shadcn Button here since global-error has no providers */}
+        {/* Action - no shadcn Button here since global-error has no providers */}
         <button
           onClick={reset}
           className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-zinc-900 px-4 text-sm font-medium text-zinc-50 transition-colors hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"

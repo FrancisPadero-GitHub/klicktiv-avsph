@@ -408,7 +408,7 @@ export function TechnicianTable() {
                         {/* Contact */}
                         <TableCell>
                           <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                            {tech.email || "—"}
+                            {tech.email || "-"}
                           </span>
                         </TableCell>
                         {/* Actions */}

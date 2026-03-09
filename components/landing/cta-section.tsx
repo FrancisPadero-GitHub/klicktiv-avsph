@@ -3,45 +3,34 @@ import { ArrowRight } from "lucide-react";
 
 export default function CTASection() {
   return (
-    <section className="bg-background py-24">
+    <section id="cta" className="bg-foreground py-[120px] text-center">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="relative overflow-hidden rounded-3xl bg-foreground px-8 py-16 text-center">
-          {/* Background accent */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 -z-10"
+        <h2 className="animate-fade-up mx-auto max-w-[700px] text-[clamp(2rem,4vw,3rem)] font-extrabold leading-[1.15] tracking-[-0.03em] text-background">
+          Ready to see exactly
+          <br />
+          where your money is?
+        </h2>
+        <p className="animate-fade-up-delay-1 mx-auto mt-4 max-w-[480px] text-[1.05rem] leading-[1.7] text-background/50">
+          Book a free 30-minute consultation. Tell us what&apos;s slowing you
+          down - we&apos;ll show you what your business could look like with
+          Klicktiv.
+        </p>
+        <div className="animate-fade-up-delay-2 mt-12 flex flex-wrap items-center justify-center gap-3.5">
+          <Link
+            href="https://advancedvirtualstaff.com/booking"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-[15px] text-[0.95rem] font-semibold text-primary-foreground shadow-[0_4px_20px_rgba(232,68,10,0.3)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(232,68,10,0.4)]"
           >
-            <div className="absolute bottom-0 left-1/2 h-100 w-175 -translate-x-1/2 rounded-full bg-secondary opacity-30 blur-3xl" />
-          </div>
-
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Let&apos;s Talk
-          </p>
-          <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-background sm:text-4xl">
-            Ready to solve your business problems? We are here to help.
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-            Tell us what is slowing your business down and we will build a
-            custom solution that works exactly the way you need it to.
-          </p>
-
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              href="https://advancedvirtualstaff.com/booking"
-              className="inline-flex items-center gap-2 rounded-xl bg-background px-6 py-3 text-sm font-semibold text-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Book a consultation
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/auth/login"
-              className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-background ring-1 ring-border transition-all hover:bg-secondary/20"
-            >
-              Log in
-            </Link>
-          </div>
+            Book a Free Consultation
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link
+            href="#features"
+            className="inline-flex items-center gap-2 rounded-lg border-[1.5px] border-background/20 px-8 py-[15px] text-[0.95rem] font-semibold text-background transition-all hover:bg-background/10"
+          >
+            See All Features →
+          </Link>
         </div>
       </div>
     </section>

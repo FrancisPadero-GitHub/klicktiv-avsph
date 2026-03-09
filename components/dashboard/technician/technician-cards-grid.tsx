@@ -103,7 +103,7 @@ export function TechnicianCardsGrid() {
                       {tech.name || "Unknown"}
                     </p>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {tech.email || "—"}
+                      {tech.email || "-"}
                     </p>
                   </div>
                 </div>

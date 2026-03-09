@@ -84,7 +84,7 @@ export function buildTechJobDetailSheet(
 
   const FMT_CURRENCY = "$#,##0.00";
 
-  set(0, `TECHNICIAN JOB DETAIL  —  ${report.scopeLabel}`, {
+  set(0, `TECHNICIAN JOB DETAIL  -  ${report.scopeLabel}`, {
     fill: { fgColor: { rgb: NAVY } },
     font: { bold: true, color: { rgb: WHITE }, sz: 16, name: "Calibri" },
     alignment: { horizontal: "center", vertical: "center" },
@@ -173,7 +173,7 @@ export function buildTechJobDetailSheet(
       border: allBdr(NAVY),
       alignment: { horizontal: "right" },
     };
-    set(0, `TOTAL  —  ${group.technician} (${group.jobs.length} jobs)`, {
+    set(0, `TOTAL  -  ${group.technician} (${group.jobs.length} jobs)`, {
       ...tot,
       alignment: { horizontal: "left", indent: 1 },
     });
@@ -237,7 +237,7 @@ export function appendPdfTechJobDetailPages({
   for (const group of report.techJobDetailGroups) {
     doc.addPage("a4", "landscape");
 
-    banner(0, 36, MIDNIGHT, `TECHNICIAN JOB DETAIL  —  ${report.scopeLabel}`, {
+    banner(0, 36, MIDNIGHT, `TECHNICIAN JOB DETAIL  -  ${report.scopeLabel}`, {
       size: 13,
       bold: true,
     });
@@ -248,7 +248,7 @@ export function appendPdfTechJobDetailPages({
       47,
       20,
       [20, 60, 80],
-      `${report.company.name} (${report.company.id})  ·  ${group.technician.toUpperCase()}  ·  ${group.splitLabel}  ·  ${group.jobs.length} Jobs   —   ${report.reportingPeriod}`,
+      `${report.company.name} (${report.company.id})  ·  ${group.technician.toUpperCase()}  ·  ${group.splitLabel}  ·  ${group.jobs.length} Jobs   -   ${report.reportingPeriod}`,
       { size: 7.5, color: MINT_MID },
     );
 

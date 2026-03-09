@@ -126,12 +126,12 @@ export function EstimateViewDialog({
               <InfoRow icon={Calendar} label="Date">
                 {estimate.work_order_date
                   ? new Date(estimate.work_order_date).toLocaleDateString()
-                  : "—"}
+                  : "-"}
               </InfoRow>
 
               {/* Address */}
               <InfoRow icon={MapPin} label="Address">
-                {estimate.address ?? "—"}
+                {estimate.address ?? "-"}
                 {estimate.region && (
                   <span className="ml-1.5 text-xs text-zinc-400 dark:text-zinc-500">
                     {estimate.region}
@@ -141,7 +141,7 @@ export function EstimateViewDialog({
 
               {/* Technician */}
               <InfoRow icon={User} label="Technician">
-                {techName ?? "—"}
+                {techName ?? "-"}
               </InfoRow>
 
               {/* Category */}
@@ -156,17 +156,17 @@ export function EstimateViewDialog({
             <div className="space-y-4">
               {/* Contact Number */}
               <InfoRow icon={Phone} label="Contact Number">
-                {estimate.contact_no ?? "—"}
+                {estimate.contact_no ?? "-"}
               </InfoRow>
 
               {/* Contact Email */}
               <InfoRow icon={Mail} label="Contact Email">
-                {estimate.contact_email ?? "—"}
+                {estimate.contact_email ?? "-"}
               </InfoRow>
 
               {/* Handled By */}
               <InfoRow icon={BadgeCheck} label="Handled By">
-                {estimate.handled_by ?? "—"}
+                {estimate.handled_by ?? "-"}
               </InfoRow>
             </div>
 
@@ -191,7 +191,7 @@ export function EstimateViewDialog({
                     {statusLabels[statusKey]}
                   </span>
                 ) : (
-                  "—"
+                  "-"
                 )}
               </InfoRow>
 
@@ -209,7 +209,7 @@ export function EstimateViewDialog({
 
           {/* Description */}
           <InfoRow icon={FileText} label="Description">
-            {estimate.description ?? "—"}
+            {estimate.description ?? "-"}
           </InfoRow>
 
           {/* Notes */}

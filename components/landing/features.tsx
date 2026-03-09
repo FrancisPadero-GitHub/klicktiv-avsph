@@ -1,7 +1,7 @@
 import {
   ClipboardList,
-  Calculator,
-  BarChart3,
+  Zap,
+  TrendingUp,
   FileText,
   Users,
   Wrench,
@@ -10,75 +10,80 @@ import {
 const features = [
   {
     icon: ClipboardList,
-    title: "Job & Task Tracking",
+    title: "Job and Cost Tracking",
     description:
-      "We set up a centralized system to capture every job detail, from scheduling and assignments to costs and payment collection.",
+      "Every job captured from start to finish. Scheduling, assignments, material costs, labor, and payment collection in one clean view. Nothing falls through the cracks.",
   },
   {
-    icon: Calculator,
-    title: "Automated Financial Calculations",
+    icon: Zap,
+    title: "Automated Commission Splits",
     description:
-      "Commission splits, payroll breakdowns, and revenue summaries computed automatically. No spreadsheets, no manual math.",
+      "Define your rules once. Commissions, payroll breakdowns, and tech payouts are calculated automatically the moment a job closes. No manual math, no disputes.",
   },
   {
-    icon: BarChart3,
-    title: "Live Performance Dashboards",
+    icon: TrendingUp,
+    title: "Live Revenue Dashboards",
     description:
-      "Get real-time visibility into revenue, expenses, and team performance with dashboards that update the moment data changes.",
+      "See your revenue, expenses, and margins update in real time - not at month-end. Know exactly where your business stands at any hour of any day.",
   },
   {
     icon: FileText,
-    title: "Estimates & Proposals",
+    title: "Estimates and Proposal Tracking",
     description:
-      "Track pending proposals, manage approvals, and convert estimates into active jobs with a single click.",
+      "Track every pending proposal, manage approvals, and convert estimates to active jobs in one click. Stop letting quotes fall through the cracks.",
   },
   {
     icon: Users,
-    title: "Team & Partner Management",
+    title: "Team and Subcontractor Management",
     description:
-      "Manage your team, subcontractors, or partners with individual profiles, rates, and performance tracking.",
+      "Individual profiles, pay rates, job histories, and performance metrics for every technician and partner on your roster.",
   },
   {
     icon: Wrench,
-    title: "Fully Customizable on Request",
+    title: "Built to Change With You",
     description:
-      "Every feature can be tailored to your specific workflow. Need something unique? Just tell us and we will build it for you.",
+      "Need a new report? A different workflow? An extra field? Just ask. We build and ship new features as your business grows - no waiting on a product roadmap.",
   },
 ];
 
 export default function Features() {
   return (
-    <section id="features" className="bg-muted py-24">
+    <section id="features" className="bg-background py-24">
       <div className="mx-auto max-w-7xl px-6">
         {/* Header */}
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            What We Build For You
+        <div className="animate-fade-up mb-16 max-w-170">
+          <p className="mb-4 text-xs font-bold uppercase tracking-widest text-primary">
+            What we build for you
           </p>
-          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Solutions that fit your business, not the other way around
+          <h2 className="text-[clamp(2rem,4vw,3rem)] font-extrabold leading-[1.15] tracking-[-0.03em] text-foreground">
+            Every tool your finances actually need.
           </h2>
-          <p className="mt-4 text-muted-foreground">
-            We handle the technical complexity so you can focus on operations.
-            Every feature is built around your real-world needs and can be
-            customized at any time.
+          <p className="mt-4 max-w-130 text-[1.05rem] leading-[1.7] text-muted-foreground">
+            No bloated software subscriptions. No features you&apos;ll never
+            use. Every system is custom-built around your exact workflow.
           </p>
         </div>
 
         {/* Grid */}
-        <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map(({ icon: Icon, title, description }) => (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map(({ icon: Icon, title, description }, index) => (
             <div
               key={title}
-              className="rounded-2xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+              className={`animate-fade-up relative overflow-hidden rounded-xl border border-border bg-card p-9 transition-all before:absolute before:inset-x-0 before:top-0 before:h-0.75 before:bg-[linear-gradient(90deg,var(--primary),transparent)] before:opacity-0 before:transition-opacity hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.08)] hover:before:opacity-100 ${
+                index === 0 || index === 3
+                  ? "animate-fade-up-delay-1"
+                  : index === 1 || index === 4
+                    ? "animate-fade-up-delay-2"
+                    : "animate-fade-up-delay-3"
+              }`}
             >
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-secondary">
-                <Icon className="h-5 w-5 text-foreground" />
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-[10px] bg-primary/8">
+                <Icon className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="mb-2 text-base font-semibold text-foreground">
+              <h3 className="mb-2.5 text-[1.1rem] font-bold text-foreground">
                 {title}
               </h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
+              <p className="text-[0.92rem] leading-[1.65] text-muted-foreground">
                 {description}
               </p>
             </div>

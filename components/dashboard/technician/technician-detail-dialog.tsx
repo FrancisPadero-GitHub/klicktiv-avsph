@@ -145,7 +145,7 @@ export function TechnicianDetailDialog({
                       Email
                     </p>
                     <p className="mt-0.5 text-sm text-zinc-800 dark:text-zinc-200">
-                      {selectedTech.email || "—"}
+                      {selectedTech.email || "-"}
                     </p>
                   </div>
                 </div>
@@ -168,7 +168,7 @@ export function TechnicianDetailDialog({
                               day: "numeric",
                             },
                           )
-                        : "—"}
+                        : "-"}
                     </p>
                   </div>
                 </div>

@@ -1,64 +1,74 @@
 const steps = [
   {
     number: "01",
-    title: "Tell us your pain points",
+    title: "Tell us what's broken",
     description:
-      "Schedule a consultation and walk us through the challenges slowing your business down. We listen, ask the right questions, and map out a plan.",
+      "Book a consultation and walk us through exactly what's slowing you down. We ask the right questions to map your workflow precisely.",
   },
   {
     number: "02",
-    title: "We build your custom solution",
+    title: "We build your system",
     description:
-      "Our team designs and develops a system tailored to your exact workflow, whether it is job tracking, financial reporting, or team management.",
+      "Our team designs and develops a solution around your exact business - not a generic template with your logo slapped on it.",
   },
   {
     number: "03",
-    title: "You start using it immediately",
+    title: "You're live from day one",
     description:
-      "We set everything up, migrate your data if needed, and walk you through the platform. You are operational from day one.",
+      "We migrate your existing data, configure everything, and walk your team through the platform. You're operational immediately.",
   },
   {
     number: "04",
-    title: "Request changes anytime",
+    title: "We grow with you",
     description:
-      "Need a new report, a different workflow, or an extra feature? Just let us know. We iterate and customize as your business evolves.",
+      "Your business evolves. So does your system. Request changes, new reports, or new features anytime - we ship them fast.",
   },
 ];
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="bg-background py-24">
+    <section id="how" className="bg-foreground py-24">
       <div className="mx-auto max-w-7xl px-6">
         {/* Header */}
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+        <div className="animate-fade-up mb-16">
+          <p className="mb-4 text-xs font-bold uppercase tracking-[0.1em] text-primary">
             How It Works
           </p>
-          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            From problem to solution in four steps
+          <h2 className="text-[clamp(2rem,4vw,3rem)] font-extrabold leading-[1.15] tracking-[-0.03em] text-background">
+            Operational in days,
+            <br />
+            not months.
           </h2>
-          <p className="mt-4 text-muted-foreground">
-            We handle the heavy lifting so you can focus on running your
-            business. No technical knowledge required on your end.
+          <p className="mt-4 max-w-[520px] text-[1.05rem] leading-[1.7] text-background/50">
+            We handle all the technical work. You just describe your problems -
+            we solve them.
           </p>
         </div>
 
         {/* Steps */}
-        <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map(({ number, title, description }, index) => (
-            <div key={number} className="relative flex flex-col">
-              {/* Connector line (desktop only) */}
-              {index < steps.length - 1 && (
-                <div className="absolute top-5 left-full hidden h-px w-8 bg-border lg:block" />
-              )}
-
-              <div className="mb-4 text-4xl font-black tracking-tighter text-secondary">
+            <div
+              key={number}
+              className={`animate-fade-up p-10 ${
+                index > 0 ? "border-l border-background/[0.07]" : ""
+              } ${
+                index === 0
+                  ? "animate-fade-up-delay-1"
+                  : index === 1
+                    ? "animate-fade-up-delay-2"
+                    : index === 2
+                      ? "animate-fade-up-delay-3"
+                      : "animate-fade-up-delay-4"
+              }`}
+            >
+              <span className="mb-5 block text-[3.5rem] font-extrabold leading-none text-background/[0.5]">
                 {number}
-              </div>
-              <h3 className="mb-2 text-base font-semibold text-foreground">
+              </span>
+              <h3 className="mb-2.5 text-[1.1rem] font-bold text-background">
                 {title}
               </h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
+              <p className="text-[0.9rem] leading-[1.65] text-background/45">
                 {description}
               </p>
             </div>

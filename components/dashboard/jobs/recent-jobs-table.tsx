@@ -135,8 +135,8 @@ export function RecentJobsTable() {
               ) : (
                 recentJobs.map((job) => {
                   const techName = job.technician_id
-                    ? (techNameMap.get(job.technician_id) ?? "—")
-                    : "—";
+                    ? (techNameMap.get(job.technician_id) ?? "-")
+                    : "-";
                   const commRate = job.technician_id
                     ? techCommissionMap.get(job.technician_id)
                     : null;
@@ -148,21 +148,21 @@ export function RecentJobsTable() {
                     >
                       {/* ID */}
                       <TableCell className="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                        {shortId(job.work_order_id ?? "—")}
+                        {shortId(job.work_order_id ?? "-")}
                       </TableCell>
                       {/* Job Name */}
                       <TableCell className="font-medium text-zinc-800 dark:text-zinc-200">
-                        {job.work_title ?? "—"}
+                        {job.work_title ?? "-"}
                       </TableCell>
                       {/* Date */}
                       <TableCell className="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
                         {job.work_order_date
                           ? new Date(job.work_order_date).toLocaleDateString()
-                          : "—"}
+                          : "-"}
                       </TableCell>
                       {/* Address */}
                       <TableCell className="font-medium text-zinc-800 dark:text-zinc-200">
-                        {job.address ?? "—"}
+                        {job.address ?? "-"}
                         {job.region && (
                           <span className="ml-1.5 text-xs text-zinc-400 dark:text-zinc-500">
                             {job.region}
@@ -173,7 +173,7 @@ export function RecentJobsTable() {
                       <TableCell className="whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-                            {(techName === "—" ? "?" : techName)
+                            {(techName === "-" ? "?" : techName)
                               .split(" ")
                               .map((n) => n[0])
                               .join("")}

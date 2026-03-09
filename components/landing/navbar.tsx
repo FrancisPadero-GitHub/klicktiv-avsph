@@ -11,7 +11,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/80 bg-background/90 backdrop-blur-md">
+    <header className="animate-fade-in fixed top-0 left-0 right-0 z-50 border-b border-border/80 bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
         {/* Logo */}
         <Link href="/" className="flex shrink-0 items-center">
@@ -21,30 +21,30 @@ export default function Navbar() {
             alt="Klicktiv Logo"
             width={160}
             height={48}
-            className="h-12 w-auto dark:brightness-0 dark:invert"
+            className="h-12 w-auto dark:brightness-0 dark:invert teal-dark:brightness-0 teal-dark:invert"
             priority
           />
         </Link>
 
-        {/* Desktop nav — centered */}
+        {/* Desktop nav - centered */}
         <nav className="hidden items-center gap-8 md:flex">
           <Link
             href="#features"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-accent-foreground/80"
           >
             Features
           </Link>
           <Link
-            href="#how-it-works"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            href="#how"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-accent-foreground/80"
           >
             How It Works
           </Link>
           <Link
-            href="#stats"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            href="#who"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-accent-foreground/80"
           >
-            Why Us
+            Who It&apos;s For
           </Link>
         </nav>
 
@@ -54,16 +54,17 @@ export default function Navbar() {
           <div className="hidden items-center gap-2 md:flex">
             <Link
               href="/auth/login"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent-foreground/15"
             >
               Log In
             </Link>
             <Link
-              href="/dashboard"
-              title="Temporary, will remove it till auth is ready"
-              className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:opacity-90"
+              href="https://advancedvirtualstaff.com/booking"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all hover:opacity-90"
             >
-              Go to Dashboard
+              Book a Demo
             </Link>
           </div>
 
@@ -91,23 +92,23 @@ export default function Navbar() {
           <Link
             href="#features"
             onClick={() => setOpen(false)}
-            className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary"
+            className="rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-accent-foreground/80"
           >
             Features
           </Link>
           <Link
-            href="#how-it-works"
+            href="#how"
             onClick={() => setOpen(false)}
-            className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary"
+            className="rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-accent-foreground/80"
           >
             How It Works
           </Link>
           <Link
-            href="#stats"
+            href="#who"
             onClick={() => setOpen(false)}
-            className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary"
+            className="rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-accent-foreground/80"
           >
-            Why Us
+            Who It&apos;s For
           </Link>
           <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
             <Link
@@ -118,12 +119,13 @@ export default function Navbar() {
               Log In
             </Link>
             <Link
-              href="/dashboard"
-              title="Temporary"
+              href="https://advancedvirtualstaff.com/booking"
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => setOpen(false)}
-              className="rounded-lg bg-foreground px-4 py-2 text-center text-sm font-medium text-background transition-colors hover:opacity-90"
+              className="rounded-lg bg-primary px-4 py-2 text-center text-sm font-medium text-primary-foreground transition-all hover:opacity-90"
             >
-              Go to Dashboard
+              Book a Demo
             </Link>
           </div>
         </div>

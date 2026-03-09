@@ -30,7 +30,7 @@ const fmt = (n: number) =>
   );
 
 const formatDate = (dateStr: string | null) => {
-  if (!dateStr) return "—";
+  if (!dateStr) return "-";
   return new Date(dateStr).toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
@@ -160,7 +160,7 @@ export function ReviewViewDialog({
                       day: "numeric",
                       year: "numeric",
                     })
-                  : "—"}
+                  : "-"}
               </InfoRow>
 
               {record.work_order_id && (
@@ -191,7 +191,7 @@ export function ReviewViewDialog({
               )}
 
               <InfoRow icon={CreditCard} label="Payment Method">
-                {record.payment_method ?? "—"}
+                {record.payment_method ?? "-"}
               </InfoRow>
 
               <InfoRow icon={DollarSign} label="Tip">

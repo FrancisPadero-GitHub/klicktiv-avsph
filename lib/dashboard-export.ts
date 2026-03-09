@@ -193,7 +193,7 @@ const formatPeriod = (dates: Date[]) => {
       year: "numeric",
     });
 
-  return `${format(min)} — ${format(max)}`;
+  return `${format(min)} - ${format(max)}`;
 };
 
 const slugify = (value: string) =>
@@ -614,7 +614,7 @@ function buildReviewTotalsSheet(report: DashboardExportReport, XS: any) {
   const FMT_INT = "#,##0";
   const FMT_PCT = "0.0%";
 
-  set(0, `REVIEW TOTALS  —  ${report.scopeLabel}`, {
+  set(0, `REVIEW TOTALS  -  ${report.scopeLabel}`, {
     fill: { fgColor: { rgb: NAVY } },
     font: { bold: true, color: { rgb: WHITE }, sz: 16, name: "Calibri" },
     alignment: { horizontal: "center", vertical: "center" },
@@ -1021,7 +1021,7 @@ export async function exportDashboardReportAsExcel(
   span(0, 8);
   r++;
 
-  // ── KPI cards — 3 cards per row, label row + value row ────────────────────
+  // ── KPI cards - 3 cards per row, label row + value row ────────────────────
   const lastMonthRow =
     report.monthlyRows.length > 0
       ? report.monthlyRows[report.monthlyRows.length - 1]
@@ -1134,7 +1134,7 @@ export async function exportDashboardReportAsExcel(
   r++; // spacer
 
   // ── Technician section header ──────────────────────────────────────────────
-  set(0, `TECHNICIAN PERFORMANCE  —  ${report.scopeLabel}`, {
+  set(0, `TECHNICIAN PERFORMANCE  -  ${report.scopeLabel}`, {
     fill: { fgColor: { rgb: NAVY } },
     font: { bold: true, color: { rgb: WHITE }, sz: 11, name: "Calibri" },
     alignment: { horizontal: "left", vertical: "center" },
@@ -1290,19 +1290,19 @@ export async function exportDashboardReportAsExcel(
   });
   ws["!merges"] = merges;
   ws["!cols"] = [
-    { wch: 28 }, // A — Technician / Month
-    { wch: 7 }, // B — Jobs
-    { wch: 17 }, // C — Gross Revenue
-    { wch: 14 }, // D — Parts
-    { wch: 12 }, // E — Tips
-    { wch: 15 }, // F — Net Revenue
-    { wch: 15 }, // G — Tech Pay
-    { wch: 15 }, // H — Company Net
-    { wch: 22 }, // I — Split / Pct
+    { wch: 28 }, // A - Technician / Month
+    { wch: 7 }, // B - Jobs
+    { wch: 17 }, // C - Gross Revenue
+    { wch: 14 }, // D - Parts
+    { wch: 12 }, // E - Tips
+    { wch: 15 }, // F - Net Revenue
+    { wch: 15 }, // G - Tech Pay
+    { wch: 15 }, // H - Company Net
+    { wch: 22 }, // I - Split / Pct
   ];
 
   // Row heights: title, subtitle, spacer, KPI header, 3×(label+value), spacer,
-  //              tech header, tech col-headers — rest inherit default.
+  //              tech header, tech col-headers - rest inherit default.
   ws["!rows"] = [
     { hpt: 38 }, // title
     { hpt: 20 }, // subtitle
@@ -1402,13 +1402,13 @@ export async function exportDashboardReportAsPdf(
   };
 
   // ═══════════════════════════════════════
-  //  PAGE 1  —  KPIs + Technician table
+  //  PAGE 1  -  KPIs + Technician table
   // ═══════════════════════════════════════
 
   // Title bar
   banner(0, 48, MIDNIGHT, report.title, { size: 18, bold: true });
 
-  // Accent bar — thin teal stripe
+  // Accent bar - thin teal stripe
   doc.setFillColor(...TEAL_DARK);
   doc.rect(0, 48, PAGE_W, 4, "F");
 
@@ -1557,7 +1557,7 @@ export async function exportDashboardReportAsPdf(
     techBannerY,
     18,
     MIDNIGHT,
-    `TECHNICIAN PERFORMANCE  —  ${report.scopeLabel}`,
+    `TECHNICIAN PERFORMANCE  -  ${report.scopeLabel}`,
     { size: 8.5, bold: true, align: "left" },
   );
 
@@ -1638,12 +1638,12 @@ export async function exportDashboardReportAsPdf(
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     didParseCell: (data: any) => {
-      // Company Net column — green bold text in body
+      // Company Net column - green bold text in body
       if (data.column.index === 7 && data.row.section === "body") {
         data.cell.styles.textColor = GREEN_TXT;
         data.cell.styles.fontStyle = "bold";
       }
-      // Total label in footer — left-align
+      // Total label in footer - left-align
       if (data.row.section === "foot" && data.column.index === 0) {
         data.cell.styles.halign = "left";
       }
@@ -1651,7 +1651,7 @@ export async function exportDashboardReportAsPdf(
   });
 
   // ═══════════════════════════════════════
-  //  PAGE 2  —  Monthly comparison
+  //  PAGE 2  -  Monthly comparison
   // ═══════════════════════════════════════
   doc.addPage("a4", "landscape");
 
@@ -1667,7 +1667,7 @@ export async function exportDashboardReportAsPdf(
     align: "left",
   });
 
-  // Monthly stat strip — jobs + gross inline
+  // Monthly stat strip - jobs + gross inline
   const totalMonthJobs = report.monthlyRows.reduce((s, m) => s + m.jobs, 0);
   const totalMonthGross = report.monthlyRows.reduce((s, m) => s + m.gross, 0);
   banner(
@@ -1753,16 +1753,16 @@ export async function exportDashboardReportAsPdf(
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     didParseCell: (data: any) => {
-      // Company Net — green bold in body
+      // Company Net - green bold in body
       if (data.column.index === 6 && data.row.section === "body") {
         data.cell.styles.textColor = GREEN_TXT;
         data.cell.styles.fontStyle = "bold";
       }
-      // % of Total — teal text
+      // % of Total - teal text
       if (data.column.index === 7 && data.row.section === "body") {
         data.cell.styles.textColor = TEAL_DARK;
       }
-      // Footer first col — left-align
+      // Footer first col - left-align
       if (data.row.section === "foot" && data.column.index === 0) {
         data.cell.styles.halign = "left";
       }
@@ -1770,7 +1770,7 @@ export async function exportDashboardReportAsPdf(
   });
 
   // ═══════════════════════════════════════
-  //  PAGE 3  —  Review totals
+  //  PAGE 3  -  Review totals
   // ═══════════════════════════════════════
   doc.addPage("a4", "landscape");
 
@@ -1778,7 +1778,7 @@ export async function exportDashboardReportAsPdf(
   doc.setFillColor(...TEAL_DARK);
   doc.rect(0, 32, PAGE_W, 3, "F");
 
-  banner(43, 18, TEAL_DARK, `REVIEW TOTALS  —  ${report.scopeLabel}`, {
+  banner(43, 18, TEAL_DARK, `REVIEW TOTALS  -  ${report.scopeLabel}`, {
     size: 8.5,
     bold: true,
     align: "left",

@@ -34,7 +34,7 @@ const fmt = (n: number) =>
   );
 
 const fmtDateTime = (value: string | null | undefined) => {
-  if (!value) return "—";
+  if (!value) return "-";
 
   return new Date(value).toLocaleString("en-US", {
     year: "numeric",
@@ -219,7 +219,7 @@ export function JobViewDialog({
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">
                     {initials}
                   </div>
-                  <span>{techName ?? "—"}</span>
+                  <span>{techName ?? "-"}</span>
                   {commRate != null && (
                     <span className="text-xs text-zinc-400">({commRate}%)</span>
                   )}
@@ -228,7 +228,7 @@ export function JobViewDialog({
 
               {/* Address */}
               <InfoRow icon={MapPin} label="Address">
-                <span>{job.address ?? "—"}</span>
+                <span>{job.address ?? "-"}</span>
                 {job.region && (
                   <span className="ml-1.5 text-xs text-zinc-400 dark:text-zinc-500">
                     {job.region}
@@ -238,7 +238,7 @@ export function JobViewDialog({
 
               {/* Category */}
               <InfoRow icon={Tag} label="Category">
-                {job.category ?? "—"}
+                {job.category ?? "-"}
               </InfoRow>
             </div>
 
@@ -246,12 +246,12 @@ export function JobViewDialog({
             <div className="space-y-4">
               {/* Contact Number */}
               <InfoRow icon={Phone} label="Contact Number">
-                {job.contact_no ?? "—"}
+                {job.contact_no ?? "-"}
               </InfoRow>
 
               {/* Contact Email */}
               <InfoRow icon={Mail} label="Contact Email">
-                {job.contact_email ?? "—"}
+                {job.contact_email ?? "-"}
               </InfoRow>
 
               {/* Payment */}
@@ -263,7 +263,7 @@ export function JobViewDialog({
                       "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
                   )}
                 >
-                  {job.payment_method ?? "—"}
+                  {job.payment_method ?? "-"}
                 </span>
               </InfoRow>
             </div>
@@ -297,7 +297,7 @@ export function JobViewDialog({
             {job.description ? (
               <p className="whitespace-pre-wrap">{job.description}</p>
             ) : (
-              <span className="text-zinc-400 dark:text-zinc-500">—</span>
+              <span className="text-zinc-400 dark:text-zinc-500">-</span>
             )}
           </InfoRow>
 

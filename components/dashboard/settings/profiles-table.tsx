@@ -95,7 +95,7 @@ export function ProfilesTable() {
                           day: "numeric",
                         },
                       )
-                    : "—";
+                    : "-";
 
                   return (
                     <TableRow
@@ -115,12 +115,12 @@ export function ProfilesTable() {
                             @{profile.username}
                           </span>
                         ) : (
-                          <span className="text-zinc-400 italic">—</span>
+                          <span className="text-zinc-400 italic">-</span>
                         )}
                       </TableCell>
                       <TableCell>
                         <RoleBadge
-                          role={profile.role === "user" ? "VA" : "—"}
+                          role={profile.role === "user" ? "VA" : "-"}
                         />
                       </TableCell>
                       <TableCell>

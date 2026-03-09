@@ -490,7 +490,7 @@ export function EstimatesTable({
                 const techName = estimate.technician_id
                   ? (technicianNameById[estimate.technician_id] ??
                     estimate.technician_id)
-                  : "—";
+                  : "-";
 
                 return (
                   <TableRow
@@ -526,7 +526,7 @@ export function EstimatesTable({
                       />
                     </TableCell>
                     <TableCell className="whitespace-nowrap  text-zinc-500 dark:text-zinc-400">
-                      {shortId(estimate.work_order_id ?? "—")}
+                      {shortId(estimate.work_order_id ?? "-")}
                     </TableCell>
                     {/* Date */}
                     <TableCell className="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
@@ -534,15 +534,15 @@ export function EstimatesTable({
                         ? new Date(
                             estimate.work_order_date,
                           ).toLocaleDateString()
-                        : "—"}
+                        : "-"}
                     </TableCell>
                     {/* Work Title */}
                     <TableCell className="truncate max-w-xs font-medium text-zinc-800 dark:text-zinc-200">
-                      {estimate.work_title ?? "—"}
+                      {estimate.work_title ?? "-"}
                     </TableCell>
                     {/* Address */}
                     <TableCell className="truncate max-w-xs font-medium text-zinc-800 dark:text-zinc-200">
-                      {estimate.address ?? "—"}
+                      {estimate.address ?? "-"}
                       {estimate.region && (
                         <span className="ml-1.5 text-xs text-zinc-400 dark:text-zinc-500">
                           {estimate.region}
@@ -555,9 +555,9 @@ export function EstimatesTable({
                     </TableCell>
                     {/* Description */}
                     {/* <TableCell className="truncate max-w-sm text-zinc-600 dark:text-zinc-300">
-                      {estimate.description ?? "—"}
+                      {estimate.description ?? "-"}
                     </TableCell> */}
-                    {/* Amount — blue */}
+                    {/* Amount - blue */}
                     <TableCell className="whitespace-nowrap tabular-nums font-medium text-blue-600 dark:text-blue-400">
                       {fmt(Number(estimate.estimated_amount ?? 0))}
                     </TableCell>
@@ -574,13 +574,13 @@ export function EstimatesTable({
                         </span>
                       ) : (
                         <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                          —
+                          -
                         </span>
                       )}
                     </TableCell>
                     {/* Handled By */}
                     <TableCell className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {estimate.handled_by ?? "—"}
+                      {estimate.handled_by ?? "-"}
                     </TableCell>
                     {/* Actions */}
                     <TableCell

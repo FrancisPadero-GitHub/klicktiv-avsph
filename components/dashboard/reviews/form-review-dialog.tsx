@@ -387,7 +387,7 @@ export function AddEditReviewDialog({
                       {selectedJob.work_title}
                     </p>
                     <p className="font-mono text-[11px] text-zinc-400">
-                      #{selectedJob.work_order_id?.slice(0, 12) ?? "—"}
+                      #{selectedJob.work_order_id?.slice(0, 12) ?? "-"}
                     </p>
                   </div>
                   {selectedJob.category && (

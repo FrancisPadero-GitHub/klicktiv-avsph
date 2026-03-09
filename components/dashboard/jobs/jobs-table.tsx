@@ -528,12 +528,12 @@ export function JobsTable() {
             </div>
           )}
 
-          <div className="min-h-96 max-h-150 overflow-x-auto">
+          <div className="min-h-96 max-h-150 overflow-x-auto overflow-y-auto">
             <Table>
               <TableHeader>
-                <TableRow className="sticky top-0 border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 hover:bg-white dark:hover:bg-zinc-900">
+                <TableRow className=" border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 hover:bg-white dark:hover:bg-zinc-900">
                   <TableHead
-                    className="w-10 px-3"
+                    className="sticky top-0 z-10 w-10 px-3"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Checkbox
@@ -591,8 +591,8 @@ export function JobsTable() {
                   filtered.map((job) => {
                     const statusKey = (job.status ?? "pending").toLowerCase();
                     const techName = job.technician_id
-                      ? (techNameMap.get(job.technician_id) ?? "—")
-                      : "—";
+                      ? (techNameMap.get(job.technician_id) ?? "-")
+                      : "-";
                     const commRate = job.technician_id
                       ? techCommissionMap.get(job.technician_id)
                       : null;
@@ -655,21 +655,21 @@ export function JobsTable() {
                           />
                         </TableCell>
                         <TableCell className="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                          {shortId(job.work_order_id ?? "—")}
+                          {shortId(job.work_order_id ?? "-")}
                         </TableCell>
                         {/* Job Name */}
                         <TableCell className="truncate max-w-xs font-medium text-zinc-800 dark:text-zinc-200">
-                          {job.work_title ?? "—"}
+                          {job.work_title ?? "-"}
                         </TableCell>
                         {/* Date */}
                         <TableCell className="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
                           {job.work_order_date
                             ? new Date(job.work_order_date).toLocaleDateString()
-                            : "—"}
+                            : "-"}
                         </TableCell>
                         {/* Address */}
                         <TableCell className="truncate max-w-sm font-medium text-zinc-800 dark:text-zinc-200">
-                          {job.address ?? "—"}
+                          {job.address ?? "-"}
                           {job.region && (
                             <span className="ml-1.5 text-xs text-zinc-400 dark:text-zinc-500">
                               {job.region}
@@ -680,7 +680,7 @@ export function JobsTable() {
                         <TableCell className="whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-                              {(techName === "—" ? "?" : techName)
+                              {(techName === "-" ? "?" : techName)
                                 .split(" ")
                                 .map((n) => n[0])
                                 .join("")}
@@ -725,7 +725,7 @@ export function JobsTable() {
                                 "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
                             )}
                           >
-                            {job.status ?? "—"}
+                            {job.status ?? "-"}
                           </span>
                         </TableCell>
                         {/* Actions */}

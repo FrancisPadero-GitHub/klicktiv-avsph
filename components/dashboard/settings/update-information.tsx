@@ -299,8 +299,8 @@ function UpdateInformation() {
   const { user, company_id } = useAuth();
   const { data: company } = useFetchCompany(company_id ?? undefined);
 
-  const currentEmail = user?.email ?? "—";
-  const companyName = company?.name ?? "—";
+  const currentEmail = user?.email ?? "-";
+  const companyName = company?.name ?? "-";
 
   return (
     <div className="space-y-6">

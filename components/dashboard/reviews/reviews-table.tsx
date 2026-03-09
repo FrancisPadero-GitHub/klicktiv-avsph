@@ -53,7 +53,7 @@ const fmt = (n: number) =>
   );
 
 const formatDate = (dateStr: string | null) => {
-  if (!dateStr) return "—";
+  if (!dateStr) return "-";
   const date = new Date(dateStr);
   return date.toLocaleDateString("en-US", {
     month: "short",
@@ -548,25 +548,25 @@ export function ReviewsTable({ onEdit, highlightReviewId }: ReviewsTableProps) {
                           {record.work_order_id}
                         </Link>
                       ) : (
-                        "—"
+                        "-"
                       )}
                     </TableCell>
 
                     {/* Job Name */}
                     <TableCell className="whitespace-nowrap font-medium text-zinc-800 dark:text-zinc-200">
-                      {record.work_title || "—"}
+                      {record.work_title || "-"}
                     </TableCell>
 
                     {/* Review Type */}
                     <TableCell>
                       <span className="inline-flex rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-                        {record.review_type || "—"}
+                        {record.review_type || "-"}
                       </span>
                     </TableCell>
 
                     {/* Payment */}
                     <TableCell className="whitespace-nowrap text-sm text-zinc-600 dark:text-zinc-400">
-                      {record.payment_method || "—"}
+                      {record.payment_method || "-"}
                     </TableCell>
 
                     {/* Amount */}
