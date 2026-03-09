@@ -267,7 +267,7 @@ export function AddEditReviewDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-h-[90vh] overflow-y-auto sm:max-w-3xl"
+        className="max-h-[90vh] overflow-y-auto sm:max-w-3xl break-all"
         onCloseAutoFocus={(event) => {
           // Prevent auto-focus on close to avoid scroll jump
           event.preventDefault();

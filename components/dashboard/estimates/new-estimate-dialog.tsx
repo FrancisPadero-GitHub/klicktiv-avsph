@@ -361,7 +361,7 @@ export function NewEstimateDialog({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          className="max-h-[90vh] sm:max-w-3xl flex flex-col overflow-hidden"
+          className="max-h-[90vh] sm:max-w-3xl flex flex-col overflow-hidden break-all"
           onCloseAutoFocus={(event) => {
             // Prevent auto-focus on close to avoid scroll jump
             event.preventDefault();

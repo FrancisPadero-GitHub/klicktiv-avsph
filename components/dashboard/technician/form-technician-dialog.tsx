@@ -173,7 +173,7 @@ export function AddTechnicianDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="sm:max-w-md"
+        className="sm:max-w-md break-all"
         onCloseAutoFocus={(event) => {
           // Prevent auto-focus on close to avoid scroll jump
           event.preventDefault();
