@@ -134,6 +134,7 @@ function FeedbackPage({ children }: FeedbackPageProps) {
               id="title"
               name="title"
               placeholder="Brief summary"
+              className="break-all"
               required
               disabled={loading}
             />
@@ -152,7 +153,7 @@ function FeedbackPage({ children }: FeedbackPageProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="bug">Bug Report</SelectItem>
-                <SelectItem value="feature">Feature Request</SelectItem>
+                <SelectItem value="feature_request">Feature Request</SelectItem>
                 <SelectItem value="feedback">General Feedback</SelectItem>
               </SelectContent>
             </Select>
@@ -164,7 +165,7 @@ function FeedbackPage({ children }: FeedbackPageProps) {
               id="description"
               name="description"
               placeholder="Please provide details..."
-              className="min-h-25"
+              className="min-h-25 break-all"
               required
               disabled={loading}
             />
@@ -206,9 +207,6 @@ function FeedbackPage({ children }: FeedbackPageProps) {
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-zinc-800 dark:text-zinc-200">
-                      {fileName}
-                    </p>
                     <p className="text-xs text-zinc-500">Click to replace</p>
                   </div>
                   <button
@@ -237,14 +235,14 @@ function FeedbackPage({ children }: FeedbackPageProps) {
 
             {/* Validation error */}
             {fileError && (
-              <p className="flex items-center gap-1.5 text-xs text-destructive">
+              <p className="flex items-center gap-1.5 break-all text-xs text-destructive">
                 <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                 {fileError}
               </p>
             )}
 
             {/* Policy hint */}
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            <p className="break-all text-xs text-zinc-400 dark:text-zinc-500">
               Accepted: {ALLOWED_EXT_LABEL} &mdash; Max size: 50 MB
             </p>
           </div>

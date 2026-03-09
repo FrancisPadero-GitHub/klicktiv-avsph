@@ -113,7 +113,7 @@ export function FeedbacksDialog({
                 <Label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   Title
                 </Label>
-                <p className="text-sm font-semibold text-foreground">
+                <p className="text-sm font-semibold text-foreground break-all">
                   {feedback.title}
                 </p>
               </div>
@@ -123,7 +123,7 @@ export function FeedbacksDialog({
                 <Label className="text-xs font-medium uppercase tracking-wide text-zinc-400">
                   Description
                 </Label>
-                <div className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded-md bg-muted p-3 text-sm text-foreground min-h-20">
+                <div className="max-h-40 overflow-y-auto whitespace-pre-wrap break-all rounded-md bg-muted p-3 text-sm text-foreground min-h-20">
                   {feedback.description}
                 </div>
               </div>
