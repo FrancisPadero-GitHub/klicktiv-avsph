@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 
 interface CalendarFilterState {
   year: number;
@@ -16,7 +16,7 @@ interface CalendarFilterState {
 const currentDate = new Date();
 
 export const useCalendarFilterStore = create<CalendarFilterState>()(
-  persist(
+  devtools(
     (set) => ({
       year: currentDate.getFullYear(),
       month: currentDate.getMonth(),
@@ -30,7 +30,7 @@ export const useCalendarFilterStore = create<CalendarFilterState>()(
           if (isSelected) {
             return {
               selectedTechnicians: state.selectedTechnicians.filter(
-                (id) => id !== techId
+                (id) => id !== techId,
               ),
             };
           } else {
@@ -49,6 +49,6 @@ export const useCalendarFilterStore = create<CalendarFilterState>()(
     }),
     {
       name: "calendar-filter-storage",
-    }
-  )
+    },
+  ),
 );

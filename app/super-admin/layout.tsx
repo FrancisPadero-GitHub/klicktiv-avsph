@@ -51,7 +51,7 @@ function SidebarContent({
             alt="Klicktiv Logo"
             width={160}
             height={48}
-            className="h-12 w-auto dark:brightness-0 dark:invert"
+            className="h-12 w-auto dark:brightness-0 dark:invert teal-dark:brightness-0 teal-dark:invert"
             priority
           />
         </div>
