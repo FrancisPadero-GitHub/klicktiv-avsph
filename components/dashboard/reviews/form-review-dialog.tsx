@@ -153,7 +153,11 @@ export function AddEditReviewDialog({
   } = useForm<ReviewRecordFormValues>({
     defaultValues: {
       amount: 0,
-      review_date: new Date().toISOString().split("T")[0],
+      review_date: new Date(
+        new Date().getTime() - new Date().getTimezoneOffset() * 60000,
+      )
+        .toISOString()
+        .slice(0, 16),
       job_id: "",
       review_type_id: "",
       notes: "",
@@ -189,8 +193,18 @@ export function AddEditReviewDialog({
 
       resetForm({
         amount: Number(selectedReview.review_amount ?? 0),
-        review_date:
-          selectedReview.review_date ?? new Date().toISOString().split("T")[0],
+        review_date: (() => {
+          const dStr =
+            selectedReview.review_date ??
+            new Date().toISOString().split("T")[0];
+          const d = new Date(dStr);
+          if (!isNaN(d.getTime())) {
+            return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+              .toISOString()
+              .slice(0, 16);
+          }
+          return dStr;
+        })(),
         job_id: selectedReview.work_order_id ?? "",
         review_type_id: reviewTypeId,
         notes: selectedReview.review_notes ?? "",
@@ -201,7 +215,11 @@ export function AddEditReviewDialog({
 
     resetForm({
       amount: 0,
-      review_date: new Date().toISOString().split("T")[0],
+      review_date: new Date(
+        new Date().getTime() - new Date().getTimezoneOffset() * 60000,
+      )
+        .toISOString()
+        .slice(0, 16),
       job_id: prefilledJobId ?? "",
       review_type_id: "",
       notes: "",
@@ -213,7 +231,18 @@ export function AddEditReviewDialog({
         (job) => job.work_order_id === prefilledJobId,
       );
       if (picked?.work_order_date) {
-        setValue("review_date", picked.work_order_date);
+        setValue(
+          "review_date",
+          (() => {
+            const d = new Date(picked.work_order_date);
+            if (!isNaN(d.getTime())) {
+              return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+                .toISOString()
+                .slice(0, 16);
+            }
+            return picked.work_order_date;
+          })(),
+        );
       }
     }
   }, [
@@ -252,11 +281,16 @@ export function AddEditReviewDialog({
   const isSubmitting = isAddPending || isEditPending;
 
   const onSubmit = (data: ReviewRecordFormValues) => {
+    const payload = {
+      ...data,
+      review_date: new Date(data.review_date).toISOString(),
+    };
+
     if (mode === "add") {
-      addReview(data);
+      addReview(payload);
     } else if (selectedReview?.review_id) {
       editReview({
-        ...data,
+        ...payload,
         id: selectedReview.review_id,
       });
     }
@@ -310,7 +344,20 @@ export function AddEditReviewDialog({
                     (j) => j.work_order_id === value,
                   );
                   if (picked?.work_order_date) {
-                    setValue("review_date", picked.work_order_date);
+                    setValue(
+                      "review_date",
+                      (() => {
+                        const d = new Date(picked.work_order_date);
+                        if (!isNaN(d.getTime())) {
+                          return new Date(
+                            d.getTime() - d.getTimezoneOffset() * 60000,
+                          )
+                            .toISOString()
+                            .slice(0, 16);
+                        }
+                        return picked.work_order_date;
+                      })(),
+                    );
                   }
                 }
               }}
@@ -549,11 +596,11 @@ export function AddEditReviewDialog({
                 htmlFor="review_date"
                 className="text-xs font-medium text-foreground"
               >
-                Review Date <span className="text-destructive">*</span>
+                Review Date & Time <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="review_date"
-                type="date"
+                type="datetime-local"
                 className="w-full"
                 {...register("review_date", { required: true })}
               />

@@ -123,7 +123,13 @@ export function EstimateViewDialog({
               {/* Date */}
               <InfoRow icon={Calendar} label="Date">
                 {estimate.work_order_date
-                  ? new Date(estimate.work_order_date).toLocaleDateString()
+                  ? new Date(estimate.work_order_date).toLocaleString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })
                   : "-"}
               </InfoRow>
 

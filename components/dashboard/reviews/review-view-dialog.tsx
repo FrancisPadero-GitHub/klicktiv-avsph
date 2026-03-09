@@ -29,13 +29,15 @@ const fmt = (n: number) =>
     n,
   );
 
-const formatDate = (dateStr: string | null) => {
+const formatDateWithTime = (dateStr: string | null) => {
   if (!dateStr) return "-";
-  return new Date(dateStr).toLocaleDateString("en-US", {
+  return new Date(dateStr).toLocaleString("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
   });
 };
 
@@ -117,7 +119,7 @@ export function ReviewViewDialog({
               </DialogTitle>
               {record.review_date && (
                 <p className="mt-0.5 text-sm text-muted-foreground">
-                  {formatDate(record.review_date)}
+                  {formatDateWithTime(record.review_date)}
                 </p>
               )}
             </div>
@@ -155,10 +157,12 @@ export function ReviewViewDialog({
             <div className="space-y-3">
               <InfoRow icon={Calendar} label="Review Date">
                 {record.review_date
-                  ? new Date(record.review_date).toLocaleDateString("en-US", {
+                  ? new Date(record.review_date).toLocaleString("en-US", {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
                     })
                   : "-"}
               </InfoRow>

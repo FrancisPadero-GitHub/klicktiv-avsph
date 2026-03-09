@@ -80,7 +80,7 @@ const form: EstimateFormTypes = {
   address: "",
   contact_no: "",
   contact_email: "",
-  work_order_date: "",
+  work_order_date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
   notes: "",
   // estimate fields default values
   estimated_amount: 0,
@@ -88,22 +88,32 @@ const form: EstimateFormTypes = {
   status: "follow_up",
 };
 
-const mapEstimateToForm = (estimate: EstimateWithNotes): EstimateFormTypes => ({
-  work_order_id: estimate.work_order_id ?? undefined,
-  technician_id: estimate.technician_id ?? "",
-  work_title: estimate.work_title ?? "",
-  description: estimate.description ?? "",
-  category: estimate.category ?? "",
-  region: estimate.region ?? "",
-  address: estimate.address ?? "",
-  contact_no: estimate.contact_no ?? "",
-  contact_email: estimate.contact_email ?? "",
-  work_order_date: estimate.work_order_date ?? "",
-  notes: estimate.notes ?? "",
-  estimated_amount: Number(estimate.estimated_amount ?? 0),
-  handled_by: estimate.handled_by ?? "",
-  status: estimate.estimate_status ?? "follow_up",
-});
+const mapEstimateToForm = (estimate: EstimateWithNotes): EstimateFormTypes => {
+  let localDate = estimate.work_order_date ?? "";
+  if (localDate) {
+    const d = new Date(localDate);
+    if (!isNaN(d.getTime())) {
+      localDate = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    }
+  }
+
+  return {
+    work_order_id: estimate.work_order_id ?? undefined,
+    technician_id: estimate.technician_id ?? "",
+    work_title: estimate.work_title ?? "",
+    description: estimate.description ?? "",
+    category: estimate.category ?? "",
+    region: estimate.region ?? "",
+    address: estimate.address ?? "",
+    contact_no: estimate.contact_no ?? "",
+    contact_email: estimate.contact_email ?? "",
+    work_order_date: localDate,
+    notes: estimate.notes ?? "",
+    estimated_amount: Number(estimate.estimated_amount ?? 0),
+    handled_by: estimate.handled_by ?? "",
+    status: estimate.estimate_status ?? "follow_up",
+  };
+};
 
 export function NewEstimateDialog({
   open,
@@ -231,7 +241,7 @@ export function NewEstimateDialog({
             address: data.address || null,
             contact_no: data.contact_no || null,
             contact_email: data.contact_email || null,
-            work_order_date: data.work_order_date,
+            work_order_date: new Date(data.work_order_date).toISOString(),
             notes: data.notes || null,
           },
         },
@@ -255,7 +265,7 @@ export function NewEstimateDialog({
           address: data.address || null,
           contact_no: data.contact_no || null,
           contact_email: data.contact_email || null,
-          work_order_date: data.work_order_date,
+          work_order_date: new Date(data.work_order_date).toISOString(),
           notes: data.notes || null,
         },
         estimate: {
@@ -286,7 +296,7 @@ export function NewEstimateDialog({
       address: estimateFormData.address || null,
       contact_no: estimateFormData.contact_no || null,
       contact_email: estimateFormData.contact_email || null,
-      work_order_date: estimateFormData.work_order_date,
+      work_order_date: new Date(estimateFormData.work_order_date).toISOString(),
       notes: estimateFormData.notes || null,
     };
 
@@ -400,13 +410,13 @@ export function NewEstimateDialog({
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <Label htmlFor="work_order_date">
-                    Work Order Date <span className="text-destructive">*</span>
+                    Work Order Date & Time <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="work_order_date"
-                    type="date"
+                    type="datetime-local"
                     {...register("work_order_date", {
-                      required: "Work order date is required",
+                      required: "Work order date and time are required",
                     })}
                   />
                   {errors.work_order_date ? (
