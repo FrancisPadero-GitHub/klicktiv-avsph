@@ -68,21 +68,21 @@ export function RecentJobsTable() {
   }, [jobs]);
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="rounded-xl border border-border bg-card">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-zinc-200 p-4 dark:border-zinc-800">
+      <div className="flex items-center justify-between border-b border-border p-4">
         <div>
-          <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+          <h3 className="text-base font-semibold text-foreground">
             Recent Jobs
           </h3>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          <p className="text-xs text-muted-foreground">
             Showing {recentJobs.length} most recent
           </p>
         </div>
         <div>
           <Link
             href="/dashboard/jobs"
-            className="group flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-600 shadow-sm transition-all hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-100"
+            className="group flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm transition-all hover:bg-accent hover:text-foreground"
           >
             View all
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -103,7 +103,7 @@ export function RecentJobsTable() {
         <div className="max-h-120 overflow-y-auto overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-b border-zinc-200 dark:border-zinc-800">
+              <TableRow className="border-b border-border">
                 {[
                   "ID",
                   "Job Name",
@@ -115,19 +115,19 @@ export function RecentJobsTable() {
                 ].map((label) => (
                   <TableHead
                     key={label}
-                    className="sticky top-0 z-20 bg-white text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400"
+                    className="sticky top-0 z-20 bg-card text-xs font-semibold uppercase tracking-wide text-muted-foreground"
                   >
                     {label}
                   </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
-            <TableBody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+            <TableBody className="divide-y divide-border/50">
               {recentJobs.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={7}
-                    className="px-4 py-8 text-center text-sm text-zinc-400 dark:text-zinc-600"
+                    className="px-4 py-8 text-center text-sm text-muted-foreground"
                   >
                     No jobs found.
                   </TableCell>
@@ -144,27 +144,27 @@ export function RecentJobsTable() {
                   return (
                     <TableRow
                       key={job.work_order_id}
-                      className="cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                      className="cursor-pointer transition-colors hover:bg-muted/50"
                     >
                       {/* ID */}
-                      <TableCell className="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                      <TableCell className="whitespace-nowrap text-muted-foreground">
                         {shortId(job.work_order_id ?? "-")}
                       </TableCell>
                       {/* Job Name */}
-                      <TableCell className="font-medium text-zinc-800 dark:text-zinc-200">
+                      <TableCell className="font-medium text-foreground">
                         {job.work_title ?? "-"}
                       </TableCell>
                       {/* Date */}
-                      <TableCell className="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                      <TableCell className="whitespace-nowrap text-muted-foreground">
                         {job.work_order_date
                           ? new Date(job.work_order_date).toLocaleDateString()
                           : "-"}
                       </TableCell>
                       {/* Address */}
-                      <TableCell className="font-medium text-zinc-800 dark:text-zinc-200">
+                      <TableCell className="font-medium text-foreground">
                         {job.address ?? "-"}
                         {job.region && (
-                          <span className="ml-1.5 text-xs text-zinc-400 dark:text-zinc-500">
+                          <span className="ml-1.5 text-xs text-muted-foreground">
                             {job.region}
                           </span>
                         )}
@@ -172,24 +172,24 @@ export function RecentJobsTable() {
                       {/* Technician */}
                       <TableCell className="whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">
                             {(techName === "-" ? "?" : techName)
                               .split(" ")
                               .map((n) => n[0])
                               .join("")}
                           </div>
-                          <span className="text-zinc-700 dark:text-zinc-300">
+                          <span className="text-foreground">
                             {techName}
                           </span>
                           {commRate != null && (
-                            <span className="text-xs text-zinc-400">
+                            <span className="text-xs text-muted-foreground">
                               ({commRate}%)
                             </span>
                           )}
                         </div>
                       </TableCell>
                       {/* Gross */}
-                      <TableCell className="tabular-nums font-medium text-zinc-900 dark:text-zinc-100">
+                      <TableCell className="tabular-nums font-medium text-foreground">
                         {fmt(job.subtotal ?? 0)}
                       </TableCell>
                       {/* Parts Cost */}

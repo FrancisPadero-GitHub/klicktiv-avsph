@@ -191,7 +191,7 @@ export function DashboardDateFilter() {
     <div className="space-y-3">
       {/* Mode Selector Row */}
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 p-1 dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="flex items-center gap-1 rounded-lg border border-border bg-muted p-1">
           {PRESET_BUTTONS.map(({ mode, label }) => (
             <button
               key={mode}
@@ -199,8 +199,8 @@ export function DashboardDateFilter() {
               className={cn(
                 "rounded-md px-3 py-1.5 text-xs font-medium transition-all",
                 store.mode === mode
-                  ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-50"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200",
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {label}
@@ -225,7 +225,7 @@ export function DashboardDateFilter() {
           variant="ghost"
           size="xs"
           onClick={store.reset}
-          className="text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+          className="text-muted-foreground hover:text-foreground"
         >
           <RotateCcw className="size-3" />
           Reset
@@ -316,7 +316,7 @@ export function DashboardDateFilter() {
         {store.mode === "range" && (
           <>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <label className="text-xs font-medium text-muted-foreground">
                 From
               </label>
               <Input
@@ -327,7 +327,7 @@ export function DashboardDateFilter() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <label className="text-xs font-medium text-muted-foreground">
                 To
               </label>
               <Input
@@ -341,7 +341,7 @@ export function DashboardDateFilter() {
         )}
 
         {/* Active filter summary badge */}
-        <div className="flex items-center gap-1.5 rounded-md bg-zinc-100 px-2.5 py-1.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+        <div className="flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1.5 text-xs font-medium text-muted-foreground">
           {store.mode === "range" ? (
             <CalendarRange className="size-3.5" />
           ) : store.mode === "day" ? (
