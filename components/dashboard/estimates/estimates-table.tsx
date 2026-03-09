@@ -43,6 +43,16 @@ import { useDelEstimate } from "@/hooks/estimates/useDelEstimate";
 import { useBulkDelEstimates } from "@/hooks/estimates/useBulkDelEstimates";
 import { EstimateViewDialog } from "@/components/dashboard/estimates/estimate-view-dialog";
 import { EstimateDeleteAlert } from "@/components/dashboard/estimates/estimate-delete-alert";
+import { useEstimateTableStore } from "@/features/store/estimates/useEstimateTableStore";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export type EstimatesRowWithNotes = EstimatesRow & { notes?: string | null };
 
@@ -85,6 +95,19 @@ type SortDir = "asc" | "desc";
 type StatusFilter = "all" | EstimateStatus;
 type DynamicFilter = "all" | (string & {});
 
+const PAGE_SIZE = 10;
+
+function getPageNumbers(
+  current: number,
+  total: number,
+): (number | "ellipsis")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 4) return [1, 2, 3, 4, 5, "ellipsis", total];
+  if (current >= total - 3)
+    return [1, "ellipsis", total - 4, total - 3, total - 2, total - 1, total];
+  return [1, "ellipsis", current - 1, current, current + 1, "ellipsis", total];
+}
+
 interface EstimatesTableProps {
   estimates: EstimatesRowWithNotes[];
   technicianNameById: Record<string, string>;
@@ -115,6 +138,7 @@ export function EstimatesTable({
   const [showFilters, setShowFilters] = useState(true);
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const { currentPage, setCurrentPage } = useEstimateTableStore();
 
   const activeFilterCount = [
     search !== "",
@@ -148,28 +172,34 @@ export function EstimatesTable({
     setStatusFilter("all");
     setTechnicianFilter("all");
     setSelectedIds(new Set());
+    setCurrentPage(1);
   }
 
   const updateSearch = useCallback((v: string) => {
     setSearch(v);
     setSelectedIds(new Set());
-  }, []);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
   const updateStartDate = useCallback((v: string) => {
     setStartDate(v);
     setSelectedIds(new Set());
-  }, []);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
   const updateEndDate = useCallback((v: string) => {
     setEndDate(v);
     setSelectedIds(new Set());
-  }, []);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
   const updateStatusFilter = useCallback((v: StatusFilter) => {
     setStatusFilter(v);
     setSelectedIds(new Set());
-  }, []);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
   const updateTechnicianFilter = useCallback((v: DynamicFilter) => {
     setTechnicianFilter(v);
     setSelectedIds(new Set());
-  }, []);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
 
   const toggleRow = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -278,14 +308,21 @@ export function EstimatesTable({
     });
   }, [filtered]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = useMemo(
+    () =>
+      filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filtered, currentPage],
+  );
+
   function handleSort(key: SortKey) {
     if (sortKey === key) {
       setSortDir(sortDir === "asc" ? "desc" : "asc");
-      return;
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
     }
-
-    setSortKey(key);
-    setSortDir("asc");
+    setCurrentPage(1);
   }
 
   function SortIcon({ col }: { col: SortKey }) {
@@ -427,7 +464,7 @@ export function EstimatesTable({
         </div>
       )}
 
-      <div className="min-h-96 max-h-150 overflow-x-auto">
+      <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="sticky top-0 border-b border-border bg-card hover:bg-card">
@@ -485,7 +522,7 @@ export function EstimatesTable({
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((estimate, index) => {
+              paginated.map((estimate, index) => {
                 const techName = estimate.technician_id
                   ? (technicianNameById[estimate.technician_id] ??
                     estimate.technician_id)
@@ -626,6 +663,77 @@ export function EstimatesTable({
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Pagination footer */}
+      <div className="flex flex-col items-center gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="order-2 text-xs text-muted-foreground sm:order-1">
+          Showing{" "}
+          <span className="font-medium text-foreground">
+            {filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}
+          </span>
+          {" – "}
+          <span className="font-medium text-foreground">
+            {Math.min(currentPage * PAGE_SIZE, filtered.length)}
+          </span>
+          {" of "}
+          <span className="font-medium text-foreground">{filtered.length}</span>
+          {" estimates"}
+        </p>
+
+        {totalPages > 1 && (
+          <Pagination className="order-1 mx-0 w-auto sm:order-2">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPage((p) => Math.max(1, p - 1));
+                  }}
+                  className={cn(
+                    currentPage === 1 && "pointer-events-none opacity-50",
+                  )}
+                />
+              </PaginationItem>
+
+              {getPageNumbers(currentPage, totalPages).map((page, i) =>
+                page === "ellipsis" ? (
+                  <PaginationItem key={`ellipsis-${i}`}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                ) : (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      isActive={page === currentPage}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(page as number);
+                      }}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ),
+              )}
+
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPage((p) => Math.min(totalPages, p + 1));
+                  }}
+                  className={cn(
+                    currentPage === totalPages &&
+                      "pointer-events-none opacity-50",
+                  )}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </div>
 
       <EstimateViewDialog

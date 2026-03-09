@@ -5,7 +5,7 @@ import {
   TrendingUp,
   Briefcase,
   Wrench,
-  Coins,
+  // Coins,
   ClipboardList,
   CalendarDays,
 } from "lucide-react";
@@ -79,7 +79,7 @@ export function JobSummaryCards({
   const grossRevenue = summary?.gross_revenue ?? 0;
   const partsCost = summary?.parts_total_cost ?? 0;
   const netRevenue = summary?.net_revenue ?? 0;
-  const techTips = summary?.technician_total_tips ?? 0;
+  // const techTips = summary?.technician_total_tips ?? 0;
   const totalTechCommission = summary?.total_commission ?? 0;
   const companyNet = summary?.total_company_net_earned ?? 0;
 
@@ -116,14 +116,14 @@ export function JobSummaryCards({
       valueColor: "text-chart-3",
       bg: "bg-accent",
     },
-    {
-      label: "Technician Tips",
-      value: fmt(techTips),
-      Icon: Coins,
-      color: "text-secondary-foreground",
-      valueColor: "text-yellow-500 dark:text-yellow-400",
-      bg: "bg-accent",
-    },
+    // {
+    //   label: "Technician Tips",
+    //   value: fmt(techTips),
+    //   Icon: Coins,
+    //   color: "text-secondary-foreground",
+    //   valueColor: "text-yellow-500 dark:text-yellow-400",
+    //   bg: "bg-accent",
+    // },
     {
       label: "Total Commission",
       value: fmt(totalTechCommission),
@@ -319,7 +319,7 @@ export function JobSummaryCards({
         errorMessage={error?.message}
         loadingMessage="Loading summary cards..."
       >
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
           {summaryCards.map(({ label, value, Icon, color, bg, valueColor }) => (
             <div
               key={label}

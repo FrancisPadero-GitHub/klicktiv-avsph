@@ -40,6 +40,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useJobStore } from "@/features/store/jobs/useFormJobStore";
+import { useJobTableStore } from "@/features/store/jobs/useJobTableStore";
 import { useFetchViewJobRow } from "@/hooks/jobs/useFetchJobTable";
 import { useFetchTechSummary } from "@/hooks/technicians/useFetchTechSummary";
 import { useFetchTechnicians } from "@/hooks/technicians/useFetchTechnicians";
@@ -48,6 +49,15 @@ import { useBulkDelJobs } from "@/hooks/jobs/useBulkDelJobs";
 import type { ViewJobsRow } from "@/hooks/jobs/useFetchJobTable";
 import { JobViewDialog } from "@/components/dashboard/jobs/job-view-dialog";
 import { JobDeleteAlert } from "@/components/dashboard/jobs/job-delete-alert";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 // helpers
 
@@ -79,11 +89,24 @@ type SortDir = "asc" | "desc";
 type StatusFilter = "all" | "done" | "pending" | "cancelled";
 type DynamicFilter = "all" | (string & {});
 
+const PAGE_SIZE = 10;
+
 const statusColors: Record<string, string> = {
   done: "bg-success/10 text-success",
   cancelled: "bg-destructive/10 text-destructive",
   pending: "bg-primary/10 text-primary",
 };
+
+function getPageNumbers(
+  current: number,
+  total: number,
+): (number | "ellipsis")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 4) return [1, 2, 3, 4, 5, "ellipsis", total];
+  if (current >= total - 3)
+    return [1, "ellipsis", total - 4, total - 3, total - 2, total - 1, total];
+  return [1, "ellipsis", current - 1, current, current + 1, "ellipsis", total];
+}
 
 export function JobsTable() {
   const { data: jobs = [], isLoading, isError } = useFetchViewJobRow();
@@ -158,6 +181,7 @@ export function JobsTable() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [showFilters, setShowFilters] = useState(true);
+  const { currentPage, setCurrentPage } = useJobTableStore();
 
   const activeFilterCount = [
     search !== "",
@@ -178,37 +202,45 @@ export function JobsTable() {
     setCategoryFilter("all");
     setTechnicianFilter("all");
     setSelectedIds(new Set());
+    setCurrentPage(1);
   }
 
   // Helpers: update a filter and clear the row selection in the same batch
   const updateSearch = useCallback((v: string) => {
     setSearch(v);
     setSelectedIds(new Set());
-  }, []);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
   const updateStartDate = useCallback((v: string) => {
     setStartDate(v);
     setSelectedIds(new Set());
-  }, []);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
   const updateEndDate = useCallback((v: string) => {
     setEndDate(v);
     setSelectedIds(new Set());
-  }, []);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
   const updateStatusFilter = useCallback((v: StatusFilter) => {
     setStatusFilter(v);
     setSelectedIds(new Set());
-  }, []);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
   const updatePaymentFilter = useCallback((v: DynamicFilter) => {
     setPaymentFilter(v);
     setSelectedIds(new Set());
-  }, []);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
   const updateCategoryFilter = useCallback((v: DynamicFilter) => {
     setCategoryFilter(v);
     setSelectedIds(new Set());
-  }, []);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
   const updateTechnicianFilter = useCallback((v: DynamicFilter) => {
     setTechnicianFilter(v);
     setSelectedIds(new Set());
-  }, []);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
 
   const toggleRow = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -320,6 +352,13 @@ export function JobsTable() {
     techNameMap,
   ]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = useMemo(
+    () =>
+      filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filtered, currentPage],
+  );
+
   const toggleAll = useCallback(() => {
     setSelectedIds((prev) => {
       const filteredIds = filtered
@@ -337,6 +376,7 @@ export function JobsTable() {
       setSortKey(key);
       setSortDir("asc");
     }
+    setCurrentPage(1);
   }
 
   function SortIcon({ col }: { col: SortKey }) {
@@ -528,12 +568,12 @@ export function JobsTable() {
             </div>
           )}
 
-          <div className="min-h-96 max-h-150 overflow-x-auto overflow-y-auto">
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className=" border-b border-border bg-card hover:bg-card">
                   <TableHead
-                    className="sticky top-0 z-10 w-10 px-3"
+                    className="sticky top-0 z-20 bg-card w-10 px-3"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Checkbox
@@ -566,17 +606,18 @@ export function JobsTable() {
                     <TableHead
                       key={key}
                       onClick={() => handleSort(key)}
-                      className="cursor-pointer select-none  text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground"
+                      className="sticky top-0 z-20 bg-card cursor-pointer select-none text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground"
                     >
                       {label}
                       <SortIcon col={key} />
                     </TableHead>
                   ))}
-                  <TableHead className="text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <TableHead className="sticky top-0 z-20 bg-card text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Actions
                   </TableHead>
                 </TableRow>
               </TableHeader>
+
               <TableBody className="divide-y divide-border">
                 {filtered.length === 0 ? (
                   <TableRow>
@@ -588,7 +629,7 @@ export function JobsTable() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filtered.map((job) => {
+                  paginated.map((job) => {
                     const statusKey = (job.status ?? "pending").toLowerCase();
                     const techName = job.technician_id
                       ? (techNameMap.get(job.technician_id) ?? "-")
@@ -771,6 +812,79 @@ export function JobsTable() {
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Pagination footer */}
+          <div className="flex flex-col items-center gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="order-2 text-xs text-muted-foreground sm:order-1">
+              Showing{" "}
+              <span className="font-medium text-foreground">
+                {filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}
+              </span>
+              {" – "}
+              <span className="font-medium text-foreground">
+                {Math.min(currentPage * PAGE_SIZE, filtered.length)}
+              </span>
+              {" of "}
+              <span className="font-medium text-foreground">
+                {filtered.length}
+              </span>
+              {" jobs"}
+            </p>
+
+            {totalPages > 1 && (
+              <Pagination className="order-1 mx-0 w-auto sm:order-2">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage((p) => Math.max(1, p - 1));
+                      }}
+                      className={cn(
+                        currentPage === 1 && "pointer-events-none opacity-50",
+                      )}
+                    />
+                  </PaginationItem>
+
+                  {getPageNumbers(currentPage, totalPages).map((page, i) =>
+                    page === "ellipsis" ? (
+                      <PaginationItem key={`ellipsis-${i}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          isActive={page === currentPage}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setCurrentPage(page as number);
+                          }}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ),
+                  )}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage((p) => Math.min(totalPages, p + 1));
+                      }}
+                      className={cn(
+                        currentPage === totalPages &&
+                          "pointer-events-none opacity-50",
+                      )}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
           </div>
         </>
       )}
