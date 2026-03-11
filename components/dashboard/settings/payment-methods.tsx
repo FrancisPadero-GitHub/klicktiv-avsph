@@ -82,7 +82,7 @@ export function PaymentMethodsTable() {
 
   const handleEdit = (method: PaymentMethodRow) => {
     setEditingId(method.id);
-    setFormData({ name: method.name });
+    setFormData({ name: method.name ?? "" });
     setIsOpen(true);
   };
 
@@ -99,7 +99,7 @@ export function PaymentMethodsTable() {
     formData.name.trim() !== "" &&
     (methods ?? []).some(
       (m) =>
-        m.name.toLowerCase() === formData.name.trim().toLowerCase() &&
+        (m.name ?? "").toLowerCase() === formData.name.trim().toLowerCase() &&
         m.id !== editingId,
     );
 
