@@ -67,7 +67,7 @@ const fmt = (n: number) =>
 
 const fmtDate = (value: string | null) => {
   if (!value) return "";
-  return new Date(value).toLocaleDateString("en-US", {
+  return new Date(value).toLocaleDateString("en-PH", {
     month: "short",
     day: "numeric",
     year: "numeric",

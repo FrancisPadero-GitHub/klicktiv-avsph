@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
+  return new Date(iso).toLocaleDateString("en-PH", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -87,7 +87,7 @@ export function FeedbacksTable() {
   const [selectedFeedback, setSelectedFeedback] = useState<FeedbacksRow | null>(
     null,
   );
-  
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
@@ -127,18 +127,17 @@ export function FeedbacksTable() {
   const filteredFeedbacks = useMemo(() => {
     if (!feedbacks) return [];
     const q = search.toLowerCase().trim();
-    
+
     return feedbacks.filter((f) => {
       const matchSearch =
         !q ||
         f.title.toLowerCase().includes(q) ||
         f.description.toLowerCase().includes(q);
 
-      const matchStatus = 
+      const matchStatus =
         statusFilter === "all" || (f.status ?? "open") === statusFilter;
-      const matchType = 
-        typeFilter === "all" || f.type === typeFilter;
-      const matchPriority = 
+      const matchType = typeFilter === "all" || f.type === typeFilter;
+      const matchPriority =
         priorityFilter === "all" || (f.priority ?? "low") === priorityFilter;
 
       return matchSearch && matchStatus && matchType && matchPriority;
@@ -229,7 +228,7 @@ export function FeedbacksTable() {
               onChange={(e) => updateSearch(e.target.value)}
               className="h-8 w-full text-sm sm:w-64"
             />
-            
+
             <Select
               value={statusFilter}
               onValueChange={(v) => updateStatusFilter(v as StatusFilter)}
@@ -283,21 +282,30 @@ export function FeedbacksTable() {
           <Table>
             <TableHeader>
               <TableRow className="sticky top-0 border-b border-border bg-card hover:bg-card">
-                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Title</TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Type</TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Priority</TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Submitted</TableHead>
-                <TableHead className="text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">Actions</TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Title
+                </TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Type
+                </TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Status
+                </TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Priority
+                </TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Submitted
+                </TableHead>
+                <TableHead className="text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-border">
               {filteredFeedbacks.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="px-6 py-12 text-center"
-                  >
+                  <TableCell colSpan={6} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <MessageSquare className="h-6 w-6 text-muted/60" />
                       <span className="text-sm text-muted-foreground">
@@ -391,24 +399,44 @@ export function FeedbacksTable() {
                             <Eye className="h-3.5 w-3.5" />
                             View
                           </DropdownMenuItem>
-                          
+
                           <DropdownMenuItem
-                            onClick={() => updateFeedback({ id: feedback.id, status: "open" })}
+                            onClick={() =>
+                              updateFeedback({
+                                id: feedback.id,
+                                status: "open",
+                              })
+                            }
                           >
                             Mark as Open
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => updateFeedback({ id: feedback.id, status: "in_progress" })}
+                            onClick={() =>
+                              updateFeedback({
+                                id: feedback.id,
+                                status: "in_progress",
+                              })
+                            }
                           >
                             Mark as In Progress
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => updateFeedback({ id: feedback.id, status: "resolved" })}
+                            onClick={() =>
+                              updateFeedback({
+                                id: feedback.id,
+                                status: "resolved",
+                              })
+                            }
                           >
                             Mark as Resolved
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => updateFeedback({ id: feedback.id, status: "closed" })}
+                            onClick={() =>
+                              updateFeedback({
+                                id: feedback.id,
+                                status: "closed",
+                              })
+                            }
                           >
                             Mark as Closed
                           </DropdownMenuItem>

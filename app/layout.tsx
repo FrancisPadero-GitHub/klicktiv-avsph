@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, Syne } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryProvider } from "@/components/query-provider";
 import { AuthProvider } from "@/components/auth-provider";
@@ -11,12 +11,6 @@ const dmSans = DM_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-});
-
-const syne = Syne({
-  variable: "--font-heading",
-  subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -32,11 +26,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${dmSans.variable} ${syne.variable} antialiased`}>
+      <body className={`${dmSans.variable} antialiased`}>
         <QueryProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="teal"
+            defaultTheme="system"
             themes={["light", "dark", "teal", "teal-dark"]}
             disableTransitionOnChange
           >

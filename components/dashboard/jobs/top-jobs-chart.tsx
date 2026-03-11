@@ -134,7 +134,7 @@ export function TopJobsChart() {
               content={
                 <ChartTooltipContent
                   formatter={(value) =>
-                    `$${Number(value).toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+                    `$${Number(value).toLocaleString("en-PH", { minimumFractionDigits: 2 })}`
                   }
                   labelFormatter={(_, payload) => {
                     const item = payload[0]?.payload;

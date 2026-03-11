@@ -128,19 +128,20 @@ export function JobsCalendar() {
 
     const validJobs = jobs.filter((j) => {
       if (j.status !== "done" && j.status !== "pending") return false;
+
       if (
         selectedTechnicians.length > 0 &&
         !selectedTechnicians.includes(j.technician_id || "")
       ) {
         return false;
       }
+
       return true;
     });
 
     for (const job of validJobs) {
       if (job.work_order_date) {
-        // Just extract "YYYY-MM-DD" part of the date string
-        const dateKey = job.work_order_date.split("T")[0];
+        const dateKey = format(new Date(job.work_order_date), "yyyy-MM-dd");
         const list = map.get(dateKey) || [];
         list.push(job);
         map.set(dateKey, list);

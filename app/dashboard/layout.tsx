@@ -75,11 +75,12 @@ function SidebarContent({
           </span>
           <Image
             src="/kt_logo_name.png"
-            title="Go to Klicktiv"
+            title="Go to landing page"
             alt="Klicktiv Logo"
-            width={160}
-            height={48}
-            className="h-12 w-auto dark:brightness-0 dark:invert teal-dark:brightness-0 teal-dark:invert"
+            width={90}
+            height={40}
+            className="w-auto dark:brightness-0 dark:invert teal-dark:brightness-0 teal-dark:invert"
+            style={{ width: "auto", height: "auto" }}
             priority
           />
         </div>

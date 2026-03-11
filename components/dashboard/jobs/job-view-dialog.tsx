@@ -17,8 +17,9 @@ import {
   Tag,
   CreditCard,
   FileText,
-  DollarSign,
-  Wrench,
+  // DollarSign,
+  // Wrench,
+  BadgeCheck,
   Star,
   StickyNote,
   Pencil,
@@ -36,7 +37,7 @@ const fmt = (n: number) =>
 const fmtDateTime = (value: string | null | undefined) => {
   if (!value) return "-";
 
-  return new Date(value).toLocaleString("en-US", {
+  return new Date(value).toLocaleString("en-PH", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -147,7 +148,7 @@ export function JobViewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[90vh] w-full sm:max-w-4xl flex-col overflow-hidden">
+      <DialogContent className="flex max-h-[90vh] w-full sm:max-w-4xl flex-col">
         <DialogHeader>
           <div className="flex items-start justify-between gap-3 pr-6">
             <div className="min-w-0">
@@ -156,7 +157,7 @@ export function JobViewDialog({
               </DialogTitle>
               {job.work_order_date && (
                 <p className="mt-0.5 text-sm text-muted-foreground">
-                  {new Date(job.work_order_date).toLocaleString("en-US", {
+                  {new Date(job.work_order_date).toLocaleString("en-PH", {
                     weekday: "long",
                     year: "numeric",
                     month: "long",
@@ -177,12 +178,17 @@ export function JobViewDialog({
             </span>
           </div>
         </DialogHeader>
-        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-2">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-2 no-scrollbar">
           {/* Financial summary cards */}
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             <StatCard
               label="Gross"
               value={fmt(job.subtotal ?? 0)}
+              className="text-foreground"
+            />
+            <StatCard
+              label="Tip"
+              value={fmt(job.tip_amount ?? 0)}
               className="text-foreground"
             />
             <StatCard
@@ -272,14 +278,14 @@ export function JobViewDialog({
             {/* Right column - Numbers */}
             <div className="space-y-4">
               {/* Tip */}
-              <InfoRow icon={DollarSign} label="Tip">
+              {/* <InfoRow icon={DollarSign} label="Tip">
                 {fmt(job.tip_amount ?? 0)}
-              </InfoRow>
+              </InfoRow> */}
 
               {/* Net Revenue */}
-              <InfoRow icon={Wrench} label="Net Revenue">
+              {/* <InfoRow icon={Wrench} label="Net Revenue">
                 {fmt(job.net_revenue ?? 0)}
-              </InfoRow>
+              </InfoRow> */}
 
               {/* Marked done at */}
               <InfoRow icon={Star} label="Marked done at">
@@ -289,6 +295,11 @@ export function JobViewDialog({
               {/* Last Updated */}
               <InfoRow icon={Clock3} label="Last Updated">
                 {fmtDateTime(job.updated_at)}
+              </InfoRow>
+
+              {/* Last Updated */}
+              <InfoRow icon={BadgeCheck} label="Handled by">
+                {job.name ?? "-"}
               </InfoRow>
             </div>
           </div>

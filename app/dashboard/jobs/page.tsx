@@ -9,7 +9,6 @@ import {
 import { TopCategoriesChart } from "@/components/dashboard/jobs/job-top-categories";
 import { TechRevenueBarChart } from "@/components/dashboard/technician/tech-revenue-bar-chart";
 import { TopJobsChart } from "@/components/dashboard/jobs/top-jobs-chart";
-import { LogJobDialog } from "@/components/dashboard/jobs/log-job-dialog";
 import { JobsTable } from "@/components/dashboard/jobs/jobs-table";
 import { JobSummaryCards } from "@/components/dashboard/jobs/job-summary-cards";
 
@@ -42,7 +41,7 @@ export default function JobsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center">
         <div>
           <h2 className="text-2xl font-semibold tracking-tight text-foreground">
             Jobs
@@ -51,7 +50,6 @@ export default function JobsPage() {
             {summary?.total_jobs ?? 0} jobs logged
           </p>
         </div>
-        <LogJobDialog />
       </div>
 
       {/* Summary cards */}

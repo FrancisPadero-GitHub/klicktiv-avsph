@@ -240,7 +240,7 @@ export function useDashboardData() {
     return Array.from(map.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([sortKey, vals]) => ({
-        date: new Date(sortKey + "T00:00:00").toLocaleDateString("en-US", {
+        date: new Date(sortKey + "T00:00:00").toLocaleDateString("en-PH", {
           month: "short",
           day: "numeric",
         }),

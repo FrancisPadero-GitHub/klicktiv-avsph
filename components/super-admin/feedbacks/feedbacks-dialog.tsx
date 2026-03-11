@@ -31,7 +31,7 @@ interface FeedbacksDialogProps {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
+  return new Date(iso).toLocaleDateString("en-PH", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -96,7 +96,8 @@ export function FeedbacksDialog({
         <DialogHeader>
           <DialogTitle>Update Feedback</DialogTitle>
           <DialogDescription>
-            View details and update the status and priority of this feedback report.
+            View details and update the status and priority of this feedback
+            report.
           </DialogDescription>
         </DialogHeader>
 
@@ -167,43 +168,44 @@ export function FeedbacksDialog({
               )}
 
               {/* Screenshot */}
-              {feedback.screenshot_url && isSafeUrl(feedback.screenshot_url) && (
-                <div className="grid gap-1.5">
-                  <Label className="text-xs font-medium uppercase tracking-wide text-zinc-400">
-                    Screenshot
-                  </Label>
-                  {screenshotError ? (
-                    <a
-                      href={feedback.screenshot_url}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-                    >
-                      <ExternalLink className="h-3 w-3 shrink-0" />
-                      View Screenshot
-                    </a>
-                  ) : (
-                    <div className="relative overflow-hidden rounded-md border border-border bg-muted">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={feedback.screenshot_url}
-                        alt="Feedback screenshot"
-                        className="max-h-50 w-full object-contain"
-                        onError={() => setScreenshotError(true)}
-                      />
+              {feedback.screenshot_url &&
+                isSafeUrl(feedback.screenshot_url) && (
+                  <div className="grid gap-1.5">
+                    <Label className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+                      Screenshot
+                    </Label>
+                    {screenshotError ? (
                       <a
                         href={feedback.screenshot_url}
                         target="_blank"
                         rel="noreferrer noopener"
-                        title="Open full size"
-                        className="absolute right-2 top-2 rounded bg-black/50 p-1 text-white hover:bg-black/70"
+                        className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
                       >
-                        <ExternalLink className="h-3.5 w-3.5" />
+                        <ExternalLink className="h-3 w-3 shrink-0" />
+                        View Screenshot
                       </a>
-                    </div>
-                  )}
-                </div>
-              )}
+                    ) : (
+                      <div className="relative overflow-hidden rounded-md border border-border bg-muted">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={feedback.screenshot_url}
+                          alt="Feedback screenshot"
+                          className="max-h-50 w-full object-contain"
+                          onError={() => setScreenshotError(true)}
+                        />
+                        <a
+                          href={feedback.screenshot_url}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          title="Open full size"
+                          className="absolute right-2 top-2 rounded bg-black/50 p-1 text-white hover:bg-black/70"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
             </div>
 
             {/* ── Resolution Section ─────────────────────────────── */}

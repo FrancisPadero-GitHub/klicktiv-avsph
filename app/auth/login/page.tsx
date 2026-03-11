@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -7,17 +6,24 @@ import { useForm } from "react-hook-form";
 import { Eye, EyeOff, Loader2, Check } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+// hooks
 import { useLogin } from "@/hooks/auth/useLogin";
+// types
 import type { LoginFormValues } from "@/types/auth";
+// auth
 import { useAuth } from "@/components/auth-provider";
 
 export default function LoginPage() {
-  const { isAuthenticated } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-
-  const loginMutation = useLogin();
-
+  const { isAuthenticated } = useAuth(); // used to disable the submit button and show "Dashboard" if the user is already authenticated (e.g. from a previous session)
+  const { mutate: loginMutation, error: loginError, isPending } = useLogin();
   const {
     register,
     handleSubmit,
@@ -25,20 +31,20 @@ export default function LoginPage() {
   } = useForm<LoginFormValues>({
     defaultValues: { email: "", password: "" },
   });
-
+  const [showPassword, setShowPassword] = useState(false);
   function onSubmit(values: LoginFormValues) {
-    loginMutation.mutate(values);
+    loginMutation(values);
   }
 
-  const serverError = loginMutation.error
-    ? loginMutation.error instanceof Error
-      ? loginMutation.error.message
+  const serverError = loginError
+    ? loginError instanceof Error
+      ? loginError.message
       : "Something went wrong."
     : null;
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Left Content Section - Always dark theme */}
+      {/* Left Content Section - Always dark theme | */}
       <div className="relative hidden w-1/2 flex-col justify-center overflow-hidden border-l border-zinc-800 bg-zinc-950 lg:flex lg:px-12 xl:px-24">
         {/* Subtle grid pattern */}
         <div
@@ -55,7 +61,7 @@ export default function LoginPage() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
         >
-          <div className="absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 opacity-50 blur-[100px]" />
+          <div className="absolute left-1/2 top-1/2 h-200 w-200 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 opacity-50 blur-[100px]" />
         </div>
 
         <div className="relative z-10 flex flex-col items-start gap-8">
@@ -74,10 +80,11 @@ export default function LoginPage() {
             your numbers.
           </h2>
 
-          <p className="max-w-[500px] text-lg font-light leading-[1.7] text-zinc-400">
-            Klicktiv replaces your spreadsheet chaos with a live financial
-            command center. Commissions, revenue, job costs, and team
-            performance - all in one place.
+          <p className="max-w-125 text-lg font-light leading-[1.7] text-zinc-400">
+            Klicktiv turns scattered spreadsheets into one live financial
+            operating system for chimney, HVAC, and dryer vent companies. From
+            commissions to profitability, your team sees the right numbers at
+            the right time.
           </p>
 
           <div className="mt-4 flex flex-col gap-4">
@@ -102,10 +109,10 @@ export default function LoginPage() {
       </div>
 
       {/* Right Form Section */}
-      <div className="flex w-full flex-col justify-center px-4 py-12 sm:px-6 lg:w-1/2 lg:px-8 lg:py-24">
-        <div className="mx-auto w-full max-w-sm">
+      <div className="animate-fade-in flex w-full flex-col justify-center px-4 py-12 sm:px-6 lg:w-1/2 lg:px-8 lg:py-24">
+        <div className="animate-fade-up-delay-1 mx-auto w-full max-w-sm">
           {/* Logo */}
-          <div className="mb-10 flex flex-col items-center text-center">
+          <div className="mb-5 flex flex-col items-center text-center">
             <Link
               href="/"
               className="inline-flex items-center gap-2 transition-transform hover:scale-[1.02]"
@@ -114,13 +121,14 @@ export default function LoginPage() {
                 src="/kt_logo_name.png"
                 title="Go to landing page"
                 alt="Klicktiv Logo"
-                width={160}
-                height={48}
-                className="h-12 w-auto dark:brightness-0 dark:invert teal-dark:brightness-0 teal-dark:invert"
+                width={90}
+                height={40}
+                className="w-auto dark:brightness-0 dark:invert teal-dark:brightness-0 teal-dark:invert"
+                style={{ width: "auto", height: "auto" }}
                 priority
               />
             </Link>
-            <h1 className="mt-8 text-2xl font-bold tracking-tight text-foreground">
+            <h1 className="mt-5 text-2xl font-bold tracking-tight text-foreground">
               Welcome back
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -129,7 +137,7 @@ export default function LoginPage() {
           </div>
 
           {/* Form Card */}
-          <div className="rounded-2xl border border-border bg-card p-8 shadow-sm transition-all hover:shadow-md">
+          <div className="animate-scale-in rounded-2xl border border-border bg-card p-8 shadow-sm transition-all hover:shadow-md">
             {serverError && (
               <div className="mb-6 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 {serverError}
@@ -142,49 +150,39 @@ export default function LoginPage() {
               className="space-y-5"
             >
               {/* Email */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-foreground"
-                >
-                  Email address
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@example.com"
-                  className={cn(
-                    "w-full rounded-xl border bg-background px-4 py-3 text-sm text-foreground placeholder-muted-foreground outline-none transition-all",
-                    "focus:ring-2 focus:ring-primary/20 focus:border-primary",
-                    errors.email
-                      ? "border-destructive/50 focus:border-destructive focus:ring-destructive/20"
-                      : "border-input",
-                  )}
-                  {...register("email", {
-                    required: "Email is required",
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: "Enter a valid email address",
-                    },
-                  })}
-                />
-                {errors.email && (
-                  <p className="text-xs font-medium text-destructive">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
+              <Field>
+                <FieldLabel htmlFor="email">Email address</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    aria-invalid={true}
+                    aria-describedby="email-error"
+                    className={cn(
+                      "w-full rounded-xl border bg-background px-4 py-3 text-sm text-foreground placeholder-muted-foreground outline-none transition-all",
+                      "focus:ring-2 focus:ring-primary/20 focus:border-primary",
+                      errors.email
+                        ? "border-destructive/50 focus:border-destructive focus:ring-destructive/20"
+                        : "border-input",
+                    )}
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Enter a valid email address",
+                      },
+                    })}
+                  />
+                </FieldContent>
+                <FieldError errors={[errors.email]} />
+              </Field>
 
               {/* Password */}
-              <div className="space-y-2">
+              <Field>
                 <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-foreground"
-                  >
-                    Password
-                  </label>
+                  <FieldLabel htmlFor="password">Password</FieldLabel>
                   <Link
                     href="#"
                     className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
@@ -192,48 +190,46 @@ export default function LoginPage() {
                     Forgot password?
                   </Link>
                 </div>
-                <div className="relative">
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    placeholder="••••••••"
-                    className={cn(
-                      "w-full rounded-xl border bg-background px-4 py-3 pr-10 text-sm text-foreground placeholder-muted-foreground outline-none transition-all",
-                      "focus:ring-2 focus:ring-primary/20 focus:border-primary",
-                      errors.password
-                        ? "border-destructive/50 focus:border-destructive focus:ring-destructive/20"
-                        : "border-input",
-                    )}
-                    {...register("password", {
-                      required: "Password is required",
-                      minLength: {
-                        value: 8,
-                        message: "Password must be at least 8 characters",
-                      },
-                    })}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="text-xs font-medium text-destructive">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
+                <FieldContent>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
+                      placeholder="••••••••"
+                      className={cn(
+                        "w-full rounded-xl border bg-background px-4 py-3 pr-10 text-sm text-foreground placeholder-muted-foreground outline-none transition-all",
+                        "focus:ring-2 focus:ring-primary/20 focus:border-primary",
+                        errors.password
+                          ? "border-destructive/50 focus:border-destructive focus:ring-destructive/20"
+                          : "border-input",
+                      )}
+                      {...register("password", {
+                        required: "Password is required",
+                        minLength: {
+                          value: 8,
+                          message: "Password must be at least 8 characters",
+                        },
+                      })}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </FieldContent>
+                <FieldError errors={[errors.password]} />
+              </Field>
 
               {/* Submit */}
               <button
@@ -241,10 +237,10 @@ export default function LoginPage() {
                 onClick={
                   isAuthenticated ? () => router.push("/dashboard") : undefined
                 }
-                disabled={loginMutation.isPending && !isAuthenticated}
+                disabled={isPending && !isAuthenticated}
                 className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(var(--primary),0.3)] disabled:pointer-events-none disabled:opacity-50"
               >
-                {loginMutation.isPending && !isAuthenticated ? (
+                {isPending && !isAuthenticated ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Logging in...

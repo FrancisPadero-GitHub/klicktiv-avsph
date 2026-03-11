@@ -1,5 +1,5 @@
 "use client";
-
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { Sun, Moon, Palette, ChevronDown } from "lucide-react";
@@ -21,6 +21,16 @@ const THEMES = [
 
 export function ModeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
+  const [mount, setMount] = useState<boolean>(false);
+
+  // this is needed to avoid hydration mismatch, because the theme is determined on the client side
+  // just ignore this, it works fine and is a common pattern for theme toggles in Next.js
+  useEffect(() => {
+    setMount(true);
+  }, []);
+
+  // render nothing on the server, then render the dropdown on the client when the theme is available
+  if (!mount) return null;
 
   const current = THEMES.find((t) => t.value === theme) ?? THEMES[0];
   const CurrentIcon = current.icon;

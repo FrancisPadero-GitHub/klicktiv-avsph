@@ -77,11 +77,11 @@ function getISOWeekRange(isoWeek: string) {
   const weekEnd = new Date(weekStart);
   weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
   return {
-    start: weekStart.toLocaleDateString("en-US", {
+    start: weekStart.toLocaleDateString("en-PH", {
       month: "short",
       day: "numeric",
     }),
-    end: weekEnd.toLocaleDateString("en-US", {
+    end: weekEnd.toLocaleDateString("en-PH", {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -107,7 +107,7 @@ export function DashboardDateFilter() {
           : `Week: ${store.isoWeek}`;
       }
       case "day":
-        return new Date(store.date + "T00:00:00").toLocaleDateString("en-US", {
+        return new Date(store.date + "T00:00:00").toLocaleDateString("en-PH", {
           weekday: "short",
           month: "long",
           day: "numeric",

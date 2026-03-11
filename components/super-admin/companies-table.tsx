@@ -38,7 +38,7 @@ interface CompaniesTableProps {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
+  return new Date(iso).toLocaleDateString("en-PH", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -93,7 +93,8 @@ export function CompaniesTable({ companies }: CompaniesTableProps) {
               {companies?.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5} className="px-6 py-10 text-center text-muted-foreground"
+                    colSpan={5}
+                    className="px-6 py-10 text-center text-muted-foreground"
                   >
                     No companies found.
                   </td>
@@ -106,8 +107,7 @@ export function CompaniesTable({ companies }: CompaniesTableProps) {
                       key={company.id}
                       className={cn(
                         "transition-colors hover:bg-muted/50",
-                        i !== companies.length - 1 &&
-                          "border-b border-border",
+                        i !== companies.length - 1 && "border-b border-border",
                       )}
                     >
                       {/* Company name */}

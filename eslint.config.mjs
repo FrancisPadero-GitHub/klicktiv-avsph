@@ -1,20 +1,22 @@
+// ESLint configuration for Next.js 16, React 19, TypeScript, and shadcn/ui
+// Enforces best practices, code quality, and project conventions
+// See: https://nextjs.org/docs/pages/building-your-application/configuring/eslint
 import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
-import unusedImports from "eslint-plugin-unused-imports";
-import tseslint from "@typescript-eslint/eslint-plugin";
-import tsParser from "@typescript-eslint/parser";
+import nextVitals from "eslint-config-next/core-web-vitals"; // Next.js recommended rules for web vitals
+import nextTs from "eslint-config-next/typescript"; // Next.js TypeScript rules
+import unusedImports from "eslint-plugin-unused-imports"; // Plugin to catch unused imports/vars
+import tseslint from "@typescript-eslint/eslint-plugin"; // TypeScript-specific linting rules
+import tsParser from "@typescript-eslint/parser"; // TypeScript parser for ESLint
 
+// Compose ESLint config using Next.js presets and custom rules
 const eslintConfig = defineConfig([
-  // ── Next.js base configs ────────────────────────────────────────────────────
-  ...nextVitals,
-  ...nextTs,
-
-  // ── Override default ignores of eslint-config-next ──────────────────────────
+  ...nextVitals, // Core web vitals rules
+  ...nextTs, // TypeScript rules
+  // Ignore build output and env files from linting
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
 
-  // ── TypeScript + React enhanced rules ───────────────────────────────────────
   {
+    // Apply these rules to all TypeScript files
     files: ["**/*.{ts,tsx}"],
     plugins: {
       "unused-imports": unusedImports,
@@ -23,61 +25,61 @@ const eslintConfig = defineConfig([
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: true, // enables type-aware lint rules
+        project: true, // Use project tsconfig for type-aware linting
       },
     },
     rules: {
-      // ── Unused imports / variables ──────────────────────────────────────────
-      // Turn off the base rule; the plugin version handles both imports & vars
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": "off",
-      "unused-imports/no-unused-imports": "error", // auto-fixable ✨
+      // --- Unused code ---
+      "no-unused-vars": "off", // Disable base rule in favor of TS/unused-imports
+      "@typescript-eslint/no-unused-vars": "off", // Prefer unused-imports plugin
+      "unused-imports/no-unused-imports": "error", // Error on unused imports
       "unused-imports/no-unused-vars": [
         "warn",
         {
-          vars: "all",
-          varsIgnorePattern: "^_", // prefix with _ to intentionally ignore
-          args: "after-used",
-          argsIgnorePattern: "^_",
+          vars: "all", // Warn for all unused variables
+          varsIgnorePattern: "^_", // Allow variables prefixed with _
+          args: "after-used", // Warn for unused args after used ones
+          argsIgnorePattern: "^_", // Allow args prefixed with _
         },
       ],
 
-      // ── TypeScript strictness ───────────────────────────────────────────────
-      "@typescript-eslint/no-explicit-any": "warn",
+      // --- TypeScript strictness ---
+      "@typescript-eslint/no-explicit-any": "warn", // Discourage use of 'any' type
       "@typescript-eslint/consistent-type-imports": [
         "warn",
-        { prefer: "type-imports", fixStyle: "inline-type-imports" },
+        { prefer: "type-imports", fixStyle: "inline-type-imports" }, // Enforce consistent type-only imports
       ],
-      "@typescript-eslint/no-import-type-side-effects": "error",
-      "@typescript-eslint/no-non-null-assertion": "warn",
-      "@typescript-eslint/no-unnecessary-condition": "warn",
-      "@typescript-eslint/no-floating-promises": "warn",
-      "@typescript-eslint/await-thenable": "error",
-      "@typescript-eslint/no-misused-promises": "warn",
+      "@typescript-eslint/no-import-type-side-effects": "error", // Prevent import type side effects
+      "@typescript-eslint/no-non-null-assertion": "warn", // Discourage non-null assertions (!)
+      "@typescript-eslint/no-unnecessary-condition": "warn", // Warn on unnecessary conditions
+      "@typescript-eslint/no-floating-promises": "warn", // Warn if promises are not handled
+      "@typescript-eslint/await-thenable": "error", // Error if await used on non-thenable
+      "@typescript-eslint/no-misused-promises": "warn", // Warn on misused promise patterns
       "@typescript-eslint/consistent-type-assertions": [
         "warn",
         {
-          assertionStyle: "as",
-          objectLiteralTypeAssertions: "allow-as-parameter",
+          assertionStyle: "as", // Prefer 'as' assertions
+          objectLiteralTypeAssertions: "allow-as-parameter", // Allow 'as' in function params
         },
       ],
 
-      // ── React best practices ────────────────────────────────────────────────
-      "react/self-closing-comp": "warn", // prefer <Foo /> over <Foo></Foo>
-      "react/jsx-no-useless-fragment": "warn", // remove unnecessary <>…</>
+      // --- React best practices ---
+      "react/self-closing-comp": "warn", // Warn if React components can be self-closed
+      "react/jsx-no-useless-fragment": "warn", // Warn on unnecessary React fragments
       "react/jsx-curly-brace-presence": [
         "warn",
-        { props: "never", children: "never" }, // no redundant {"text"} literals
+        { props: "never", children: "never" }, // Prefer no curly braces for props/children
       ],
-      "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "warn",
+      "react-hooks/rules-of-hooks": "error", // Enforce React hook rules
+      "react-hooks/exhaustive-deps": "warn", // Warn if hook dependencies are incomplete
 
-      // ── General quality ─────────────────────────────────────────────────────
-      "no-console": ["warn", { allow: ["warn", "error"] }], // flag stray console.log
-      "prefer-const": "error",
-      eqeqeq: ["error", "always", { null: "ignore" }],
+      // --- General code quality ---
+      "no-console": ["warn", { allow: ["warn", "error"] }], // Warn on console.log, allow warn/error
+      "prefer-const": "error", // Enforce const for variables that are never reassigned
+      eqeqeq: ["error", "always", { null: "ignore" }], // Require === except for null comparisons
     },
   },
 ]);
 
+// Export the composed ESLint config
 export default eslintConfig;

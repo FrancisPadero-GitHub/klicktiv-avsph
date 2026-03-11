@@ -65,7 +65,7 @@ const fmt = (n: number) =>
 const formatDate = (dateStr: string | null) => {
   if (!dateStr) return "-";
   const date = new Date(dateStr);
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString("en-PH", {
     month: "short",
     day: "numeric",
     year: "numeric",

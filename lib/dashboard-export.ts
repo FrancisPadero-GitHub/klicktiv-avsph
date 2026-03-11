@@ -187,7 +187,7 @@ const formatPeriod = (dates: Date[]) => {
   const max = new Date(Math.max(...dates.map((dte) => dte.getTime())));
 
   const format = (value: Date) =>
-    value.toLocaleDateString("en-US", {
+    value.toLocaleDateString("en-PH", {
       month: "long",
       day: "numeric",
       year: "numeric",
@@ -332,7 +332,7 @@ export function buildDashboardExportReport({
     const jobDate = safeDate(job.work_order_date);
     const jobDetailRow: TechJobDetailJobRow = {
       date: jobDate
-        ? jobDate.toLocaleDateString("en-US", {
+        ? jobDate.toLocaleDateString("en-PH", {
             month: "2-digit",
             day: "2-digit",
             year: "numeric",

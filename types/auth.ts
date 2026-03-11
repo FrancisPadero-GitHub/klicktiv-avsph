@@ -1,6 +1,5 @@
 import type { User, Session } from "@supabase/supabase-js";
 
-// ── Form values ──────────────────────────────────────────────
 export type LoginFormValues = {
   email: string;
   password: string;
@@ -13,7 +12,7 @@ export type SignUpFormValues = {
   confirmPassword: string;
 };
 
-// ── Auth state ───────────────────────────────────────────────
+// Auth Context Types
 export type AuthState = {
   user: User | null;
   role: string | null;
@@ -23,7 +22,6 @@ export type AuthState = {
   isLoading: boolean;
 };
 
-// ── Context value ────────────────────────────────────────────
 export type AuthContextValue = AuthState & {
   signOut: () => Promise<void>;
 };
