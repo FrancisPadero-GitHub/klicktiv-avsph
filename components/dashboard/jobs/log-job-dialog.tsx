@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { Briefcase } from "lucide-react";
 import {
   Dialog,
@@ -55,9 +55,19 @@ import { useFetchTechnicians } from "@/hooks/technicians/useFetchTechnicians";
 import { useFetchPaymentMethods } from "@/hooks/payment-methods/useFetchPaymentMethods";
 
 // Data
+import type { Database } from "@/database.types";
 import { CLEANING_CATEGORY_GROUPS } from "@/data/jobs";
 
-const JOB_STATUSES = ["pending", "done", "cancelled"] as const;
+const JOB_STATUSES: Database["public"]["Enums"]["job_status_enum"][] = [
+  "pending",
+  "done",
+  "cancelled",
+];
+const PAYMENT_STATUSES: Database["public"]["Enums"]["payment_status"][] = [
+  "full",
+  "partial",
+];
+
 const categoryLabels = CLEANING_CATEGORY_GROUPS.map((group) => group.label); // for the work title place holder
 
 interface LogJobDialogProps {
@@ -119,6 +129,8 @@ export function LogJobDialog({ showTrigger = true }: LogJobDialogProps) {
   const technicianId = useWatch({ control, name: "technician_id" });
   const categoryValue = useWatch({ control, name: "category" });
   const paymentMethodId = useWatch({ control, name: "payment_method_id" });
+  const subtotalValue = useWatch({ control, name: "subtotal" });
+  const paymentStatus = useWatch({ control, name: "payment_status" });
   const status = useWatch({ control, name: "status" });
 
   // Sync form when dialog opens; resolve payment_method_id from name when editing
@@ -183,6 +195,8 @@ export function LogJobDialog({ showTrigger = true }: LogJobDialogProps) {
       status: data.status,
       name: data.name,
       tip_amount: Number(data.tip_amount) || 0,
+      payment_status: data.payment_status,
+      deposits: Number(data.deposits) || 0,
       promoted_at: promotedAt,
     };
 
@@ -739,6 +753,118 @@ export function LogJobDialog({ showTrigger = true }: LogJobDialogProps) {
                             )}
                           </FieldError>
                         </Field>
+
+                        {/* Deposit & Payment Status*/}
+                        <Field>
+                          <FieldLabel htmlFor="job-deposit">
+                            Deposit ($){" "}
+                            <span className="text-muted-foreground text-xs">
+                              (optional)
+                            </span>
+                          </FieldLabel>
+                          <Controller
+                            name="deposits"
+                            control={control}
+                            rules={{
+                              min: {
+                                value: 0,
+                                message: "Deposit must be ≥ 0",
+                              },
+                            }}
+                            render={({ field }) => (
+                              <Input
+                                {...field}
+                                id="job-deposit"
+                                type="number"
+                                inputMode="decimal"
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00"
+                                disabled={isPending}
+                                onChange={(e) => {
+                                  const rawValue = e.target.value;
+                                  // field.onChange handles the form state.
+                                  // Passing the raw string allows it to be empty ("").
+                                  field.onChange(rawValue);
+
+                                  const val = parseFloat(rawValue) || 0;
+
+                                  // Automatically set payment status
+                                  if (val >= (subtotalValue || 0)) {
+                                    setValue("payment_status", "full", {
+                                      shouldDirty: true,
+                                    });
+                                  } else {
+                                    setValue("payment_status", "partial", {
+                                      shouldDirty: true,
+                                    });
+                                  }
+                                }}
+                              />
+                            )}
+                          />
+                          <FieldDescription className="text-[12px] text-muted-foreground">
+                            Only taken account if the payment status is
+                            &rdquo;partial&rdquo;. Value is ignored when value
+                            is more than or equal to subtotal
+                          </FieldDescription>
+                          <FieldError>
+                            {errors.deposits && (
+                              <p className="text-xs text-red-500">
+                                {errors.deposits.message}
+                              </p>
+                            )}
+                          </FieldError>
+                        </Field>
+
+                        {/* Payment Status*/}
+                        <Field>
+                          <FieldLabel htmlFor="job-payment-status">
+                            Payment Status{" "}
+                            <span className="text-red-500">*</span>
+                          </FieldLabel>
+                          <Select
+                            disabled={isPending}
+                            value={paymentStatus}
+                            onValueChange={(value) =>
+                              setValue(
+                                "payment_status",
+                                value as "full" | "partial",
+                                {
+                                  shouldDirty: true,
+                                },
+                              )
+                            }
+                          >
+                            <SelectTrigger
+                              id="job-payment-status"
+                              className="w-full"
+                            >
+                              <SelectValue placeholder="Select payment status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {PAYMENT_STATUSES.map((p) => (
+                                <SelectItem key={p} value={p}>
+                                  {p}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <input
+                            type="hidden"
+                            {...register("payment_status", {
+                              required: "Payment status is required",
+                            })}
+                          />
+                          <FieldError>
+                            {errors.payment_status && (
+                              <p className="text-xs text-red-500">
+                                {errors.payment_status.message}
+                              </p>
+                            )}
+                          </FieldError>
+                        </Field>
+
                         {/* Tip & Payment Method */}
                         <Field>
                           <FieldLabel htmlFor="job-tip">
@@ -762,7 +888,7 @@ export function LogJobDialog({ showTrigger = true }: LogJobDialogProps) {
                           />
                         </Field>
 
-                        <Field data-invalid={!!errors.payment_method}>
+                        <Field data-invalid={!!errors.payment_method_id}>
                           <FieldLabel htmlFor="job-payment-method">
                             Payment Method{" "}
                             <span className="text-red-500">*</span>
@@ -826,7 +952,7 @@ export function LogJobDialog({ showTrigger = true }: LogJobDialogProps) {
                         {/* Status */}
                         <Field>
                           <FieldLabel htmlFor="job-status">
-                            Status <span className="text-red-500">*</span>
+                            Job Status <span className="text-red-500">*</span>
                           </FieldLabel>
                           <Select
                             disabled={isPending}

@@ -17,7 +17,7 @@ import {
   Tag,
   CreditCard,
   FileText,
-  // DollarSign,
+  DollarSign,
   // Wrench,
   BadgeCheck,
   Star,
@@ -53,6 +53,12 @@ const paymentColors: Record<string, string> = {
   "credit card":
     "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
   zelle: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+};
+
+const paymentStatusColors: Record<string, string> = {
+  full: "bg-success/10 text-success",
+  partial:
+    "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
 };
 
 const statusColors: Record<string, string> = {
@@ -136,6 +142,7 @@ export function JobViewDialog({
   if (!job) return null;
 
   const statusKey = (job.status ?? "pending").toLowerCase();
+  const payStatusKey = (job.payment_status as "full" | "partial").toLowerCase();
   const paymentKey = (job.payment_method ?? "").toLowerCase();
   const initials = techName
     ? techName
@@ -180,11 +187,17 @@ export function JobViewDialog({
         </DialogHeader>
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-2 no-scrollbar">
           {/* Financial summary cards */}
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <StatCard
-              label="Gross"
+              label="Subtotal"
               value={fmt(job.subtotal ?? 0)}
               className="text-foreground"
+            />
+
+            <StatCard
+              label="Deposit"
+              value={fmt(job.deposits ?? 0)}
+              className="text-[#64748B]"
             />
             <StatCard
               label="Tip"
@@ -210,6 +223,11 @@ export function JobViewDialog({
               label="Company Net"
               value={fmt(job.total_company_net ?? 0)}
               className="text-success"
+            />
+            <StatCard
+              label="Review"
+              value={fmt(job.review_amount ?? 0)}
+              className="text-foreground"
             />
           </div>
 
@@ -261,16 +279,29 @@ export function JobViewDialog({
                 {job.contact_email ?? "-"}
               </InfoRow>
 
-              {/* Payment */}
+              {/* Payment Method */}
               <InfoRow icon={CreditCard} label="Payment Method">
                 <span
                   className={cn(
-                    "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
+                    "inline-flex justify-center items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize min-w-15",
                     paymentColors[paymentKey] ??
                       "bg-muted text-muted-foreground",
                   )}
                 >
                   {job.payment_method ?? "-"}
+                </span>
+              </InfoRow>
+
+              {/* Payment Status */}
+              <InfoRow icon={DollarSign} label="Payment Status">
+                <span
+                  className={cn(
+                    "inline-flex justify-center items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize min-w-15 ",
+                    paymentStatusColors[payStatusKey] ??
+                      "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {job.payment_status ?? "-"}
                 </span>
               </InfoRow>
             </div>

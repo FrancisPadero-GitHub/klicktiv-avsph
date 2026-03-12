@@ -625,7 +625,9 @@ export function JobsTable() {
                       { key: "work_order_date", label: "Date" },
                       { key: "address", label: "Address" },
                       { key: "technician_id", label: "Technician" },
-                      { key: "subtotal", label: "Gross" },
+                      { key: "subtotal", label: "Subtotal" },
+                      { key: "deposits", label: "Deposit" },
+                      { key: "payment_status", label: "Payment" },
                       { key: "parts_total_cost", label: "Parts Cost" },
                       { key: "net_revenue", label: "Net Revenue" },
                       { key: "total_commission", label: "Commission" },
@@ -692,6 +694,8 @@ export function JobsTable() {
                       notes: job.notes ?? "",
                       status: job.status ?? "pending",
                       name: job.name ?? "",
+                      deposits: job.deposits ?? 0,
+                      payment_status: job.payment_status ?? "full", // full is the default on the database
                     };
 
                     return (
@@ -765,25 +769,42 @@ export function JobsTable() {
                             )}
                           </div>
                         </TableCell>
-                        {/* Gross */}
+                        {/* Subtotal */}
                         <TableCell className="tabular-nums font-medium text-foreground">
                           {fmt(job.subtotal ?? 0)}
+                        </TableCell>
+                        {/* Deposits */}
+                        <TableCell className="tabular-nums text-[#64748B]">
+                          {fmt(job.deposits ?? 0)}
+                        </TableCell>
+                        {/* Payment Status */}
+                        <TableCell className="tabular-nums">
+                          {job.payment_status ?? "-"}
                         </TableCell>
                         {/* Parts Cost */}
                         <TableCell className="tabular-nums text-primary">
                           {fmt(job.parts_total_cost ?? 0)}
                         </TableCell>
                         {/* Net Revenue */}
-                        <TableCell className="tabular-nums font-medium text-chart-3">
+                        <TableCell
+                          className="tabular-nums font-medium text-chart-3"
+                          title="Revenue = Subtotal - Parts Costs"
+                        >
                           {fmt(job.net_revenue ?? 0)}
                         </TableCell>
 
                         {/* Commission */}
-                        <TableCell className="tabular-nums text-amber-600">
+                        <TableCell
+                          className="tabular-nums text-amber-600"
+                          title="Commission = Net Revenue * Commission Rate"
+                        >
                           {fmt(job.total_commission ?? 0)}
                         </TableCell>
                         {/* Company Net */}
-                        <TableCell className="tabular-nums font-medium text-success">
+                        <TableCell
+                          className="tabular-nums font-medium text-success"
+                          title="Company Net = Net Revenue - Commission"
+                        >
                           {fmt(job.total_company_net ?? 0)}
                         </TableCell>
                         {/* Status */}
@@ -956,6 +977,8 @@ export function JobsTable() {
             notes: viewJob.notes ?? "",
             status: viewJob.status ?? "pending",
             name: viewJob.name ?? "",
+            deposits: viewJob.deposits ?? 0,
+            payment_status: viewJob.payment_status ?? "full", // full is the default on the database
           });
         }}
         onDelete={() => {

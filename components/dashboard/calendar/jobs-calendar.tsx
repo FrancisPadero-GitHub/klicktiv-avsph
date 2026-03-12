@@ -440,6 +440,8 @@ export function JobsCalendar() {
             notes: viewJob.notes ?? "",
             status: viewJob.status ?? "pending",
             name: viewJob.name ?? "",
+            deposits: viewJob.deposits ?? 0,
+            payment_status: viewJob.payment_status ?? "full", // full is the default on the database
           });
           setViewOpen(false);
         }}

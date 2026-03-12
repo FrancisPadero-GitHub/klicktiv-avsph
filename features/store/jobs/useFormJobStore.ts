@@ -26,6 +26,8 @@ export interface JobFormValues {
   status: Database["public"]["Enums"]["job_status_enum"];
   name: string;
   tip_amount: number;
+  deposits: number;
+  payment_status: Database["public"]["Enums"]["payment_status"];
 }
 
 interface JobStore {
@@ -67,6 +69,8 @@ export const defaultJobForm: JobFormValues = {
   status: "pending",
   name: "",
   tip_amount: 0,
+  deposits: 0,
+  payment_status: "full", // full is the default on the database
 };
 
 export const useJobStore = create<JobStore>((set) => ({
