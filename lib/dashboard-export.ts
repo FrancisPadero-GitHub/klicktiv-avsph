@@ -18,6 +18,7 @@ export interface DashboardTotals {
   avgRevenuePerJob: number;
   companyNetMarginPct: number;
   totalTips: number;
+  totalDeposits: number;
 }
 
 export interface TechPerformanceRow {
@@ -176,7 +177,18 @@ const toLabel = (value: string | null | undefined, fallback: string) =>
 
 const safeDate = (isoDate: string | null | undefined) => {
   if (!isoDate) return null;
-  const parsed = new Date(`${isoDate}T00:00:00`);
+
+  const raw = isoDate.trim();
+  if (!raw) return null;
+
+  // Handle YYYY-MM-DD and timestamp-like values from Supabase consistently.
+  const normalized = raw.includes("T")
+    ? raw
+    : raw.includes(" ")
+      ? raw.replace(" ", "T")
+      : `${raw}T00:00:00`;
+
+  const parsed = new Date(normalized);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
@@ -239,8 +251,10 @@ export function buildDashboardExportReport({
     .filter((value): value is Date => value !== null);
 
   let grossRevenue = d(0);
+  let netRevenue = d(0);
   let partsCost = d(0);
   let totalTips = d(0);
+  let totalDeposits = d(0);
   let companyNet = d(0);
 
   const technicianAgg = new Map<string, TechPerformanceRow>();
@@ -289,15 +303,37 @@ export function buildDashboardExportReport({
     const subtotal = job.subtotal ?? 0;
     const parts = job.parts_total_cost ?? 0;
     const tips = job.tip_amount ?? 0;
+    const deposits = job.deposits ?? 0;
     const net = dSub(subtotal, parts);
     const commissionRate = commissionMap.get(job.technician_id ?? "") ?? 0;
     const techPay = net.times(d(commissionRate).dividedBy(100));
     const compNet = net.minus(techPay);
 
-    grossRevenue = grossRevenue.plus(d(subtotal));
-    partsCost = partsCost.plus(d(parts));
-    totalTips = totalTips.plus(d(tips));
-    companyNet = companyNet.plus(compNet);
+    if (job.payment_status === "full") {
+      grossRevenue = grossRevenue.plus(d(subtotal));
+      partsCost = partsCost.plus(d(parts));
+      totalTips = totalTips.plus(d(tips));
+      netRevenue = netRevenue.plus(net);
+      companyNet = companyNet.plus(compNet);
+    }
+
+    if (job.payment_status === "partial") {
+      totalDeposits = totalDeposits.plus(d(deposits));
+      grossRevenue = grossRevenue.plus(d(deposits));
+    }
+
+    const exportGross =
+      job.payment_status === "full"
+        ? subtotal
+        : job.payment_status === "partial"
+          ? deposits
+          : 0;
+    const exportParts = job.payment_status === "full" ? parts : 0;
+    const exportTips = job.payment_status === "full" ? tips : 0;
+    const exportNet = job.payment_status === "full" ? dToNum(net) : 0;
+    const exportTechPay = job.payment_status === "full" ? dToNum(techPay) : 0;
+    const exportCompanyNet =
+      job.payment_status === "full" ? dToNum(compNet) : 0;
 
     const techName = job.technician_id
       ? (techNameMap?.get(job.technician_id) ??
@@ -318,12 +354,12 @@ export function buildDashboardExportReport({
     };
 
     existingTech.jobs += 1;
-    existingTech.grossRevenue += subtotal;
-    existingTech.parts += parts;
-    existingTech.tips += tips;
-    existingTech.netRevenue += dToNum(net);
-    existingTech.techPay += dToNum(techPay);
-    existingTech.companyNet += dToNum(compNet);
+    existingTech.grossRevenue += exportGross;
+    existingTech.parts += exportParts;
+    existingTech.tips += exportTips;
+    existingTech.netRevenue += exportNet;
+    existingTech.techPay += exportTechPay;
+    existingTech.companyNet += exportCompanyNet;
     existingTech.splitLabel = `${100 - commissionRate}% Co / ${commissionRate}% Tech`;
 
     technicianAgg.set(techName, existingTech);
@@ -339,12 +375,12 @@ export function buildDashboardExportReport({
           })
         : "",
       address: job.address ?? "",
-      parts,
-      tip: tips,
-      gross: subtotal,
-      netAfterParts: dToNum(net),
-      techPay: dToNum(techPay),
-      companyNet: dToNum(compNet),
+      parts: exportParts,
+      tip: exportTips,
+      gross: exportGross,
+      netAfterParts: exportNet,
+      techPay: exportTechPay,
+      companyNet: exportCompanyNet,
       month: jobDate
         ? `${MONTHS_SHORT[jobDate.getMonth()]} ${jobDate.getFullYear()}`
         : "",
@@ -364,12 +400,12 @@ export function buildDashboardExportReport({
       },
     };
     existingDetail.jobs.push(jobDetailRow);
-    existingDetail.totals.parts += parts;
-    existingDetail.totals.tip += tips;
-    existingDetail.totals.gross += subtotal;
-    existingDetail.totals.netAfterParts += dToNum(net);
-    existingDetail.totals.techPay += dToNum(techPay);
-    existingDetail.totals.companyNet += dToNum(compNet);
+    existingDetail.totals.parts += exportParts;
+    existingDetail.totals.tip += exportTips;
+    existingDetail.totals.gross += exportGross;
+    existingDetail.totals.netAfterParts += exportNet;
+    existingDetail.totals.techPay += exportTechPay;
+    existingDetail.totals.companyNet += exportCompanyNet;
     existingDetail.splitLabel = `${100 - commissionRate}% Co / ${commissionRate}% Tech`;
     techJobDetailMap.set(techName, existingDetail);
 
@@ -389,22 +425,21 @@ export function buildDashboardExportReport({
         };
 
         existingMonth.jobs += 1;
-        existingMonth.gross += subtotal;
-        existingMonth.parts += parts;
-        existingMonth.net += dToNum(net);
-        existingMonth.techPay += dToNum(techPay);
-        existingMonth.companyNet += dToNum(compNet);
+        existingMonth.gross += exportGross;
+        existingMonth.parts += exportParts;
+        existingMonth.net += exportNet;
+        existingMonth.techPay += exportTechPay;
+        existingMonth.companyNet += exportCompanyNet;
 
         monthlyAgg.set(key, existingMonth);
       }
     }
 
-    const hasReview = Boolean(job.review_id) || job.review_amount != null;
-    if (!hasReview) {
+    if (!job.review_amount) {
       continue;
     }
 
-    const reviewAmount = job.review_amount ?? 0;
+    const reviewAmount = job.review_amount;
     totalReviewAmount = totalReviewAmount.plus(d(reviewAmount));
     totalJobsWithReviews += 1;
 
@@ -448,7 +483,7 @@ export function buildDashboardExportReport({
 
   const gross = dToNum(grossRevenue);
   const parts = dToNum(partsCost);
-  const net = dToNum(grossRevenue.minus(partsCost));
+  const net = dToNum(netRevenue);
   const totalCompanyNet = dToNum(companyNet);
   const totalJobs = doneJobs.length;
   const avgRevenuePerJob =
@@ -546,6 +581,7 @@ export function buildDashboardExportReport({
       avgRevenuePerJob,
       companyNetMarginPct,
       totalTips: dToNum(totalTips),
+      totalDeposits: dToNum(totalDeposits),
     },
     technicianRows,
     monthlyRows,
@@ -1022,10 +1058,6 @@ export async function exportDashboardReportAsExcel(
   r++;
 
   // ── KPI cards - 3 cards per row, label row + value row ────────────────────
-  const lastMonthRow =
-    report.monthlyRows.length > 0
-      ? report.monthlyRows[report.monthlyRows.length - 1]
-      : undefined;
   const kpiRows: Array<Array<{ label: string; value: number; fmt: string }>> = [
     [
       {
@@ -1068,21 +1100,15 @@ export async function exportDashboardReportAsExcel(
         fmt: FMT_PCT,
       },
       {
-        label: "Total Tips Collected",
+        label: "Total Technician Tips",
         value: report.totals.totalTips,
         fmt: FMT_CURRENCY,
       },
-      lastMonthRow
-        ? {
-            label: `${lastMonthRow.month} Gross`,
-            value: lastMonthRow.gross,
-            fmt: FMT_CURRENCY,
-          }
-        : {
-            label: "Months Tracked",
-            value: report.monthlyRows.length,
-            fmt: FMT_INT,
-          },
+      {
+        label: "Total Deposits",
+        value: report.totals.totalDeposits,
+        fmt: FMT_CURRENCY,
+      },
     ],
   ];
 
@@ -1198,6 +1224,20 @@ export async function exportDashboardReportAsExcel(
 
   // ── Totals row ─────────────────────────────────────────────────────────────
   const totalTechPay = report.technicianRows.reduce((s, t) => s + t.techPay, 0);
+  const totalTechGross = report.technicianRows.reduce(
+    (s, t) => s + t.grossRevenue,
+    0,
+  );
+  const totalTechParts = report.technicianRows.reduce((s, t) => s + t.parts, 0);
+  const totalTechTips = report.technicianRows.reduce((s, t) => s + t.tips, 0);
+  const totalTechNet = report.technicianRows.reduce(
+    (s, t) => s + t.netRevenue,
+    0,
+  );
+  const totalTechCompanyNet = report.technicianRows.reduce(
+    (s, t) => s + t.companyNet,
+    0,
+  );
   const tot = {
     fill: { fgColor: { rgb: NAVY } },
     font: { bold: true, color: { rgb: WHITE }, sz: 10, name: "Calibri" },
@@ -1206,12 +1246,12 @@ export async function exportDashboardReportAsExcel(
   };
   set(0, "TOTAL", { ...tot, alignment: { horizontal: "left" } });
   set(1, report.totals.totalJobsCompleted, { ...tot }, FMT_INT);
-  set(2, report.totals.grossRevenue, { ...tot }, FMT_CURRENCY);
-  set(3, report.totals.partsCost, { ...tot }, FMT_CURRENCY);
-  set(4, report.totals.totalTips, { ...tot }, FMT_CURRENCY);
-  set(5, report.totals.netRevenue, { ...tot }, FMT_CURRENCY);
+  set(2, totalTechGross, { ...tot }, FMT_CURRENCY);
+  set(3, totalTechParts, { ...tot }, FMT_CURRENCY);
+  set(4, totalTechTips, { ...tot }, FMT_CURRENCY);
+  set(5, totalTechNet, { ...tot }, FMT_CURRENCY);
   set(6, totalTechPay, { ...tot }, FMT_CURRENCY);
-  set(7, report.totals.companyNet, { ...tot }, FMT_CURRENCY);
+  set(7, totalTechCompanyNet, { ...tot }, FMT_CURRENCY);
   set(8, `Margin: ${report.totals.companyNetMarginPct.toFixed(1)}%`, {
     ...tot,
     alignment: { horizontal: "center" },
@@ -1430,10 +1470,6 @@ export async function exportDashboardReportAsPdf(
   });
 
   // ── KPI grid (3 columns of label+value pairs) ─────────────────────────────
-  const lastMonth =
-    report.monthlyRows.length > 0
-      ? report.monthlyRows[report.monthlyRows.length - 1]
-      : undefined;
   const kpiItems = [
     {
       label: "Total Gross Revenue",
@@ -1464,15 +1500,13 @@ export async function exportDashboardReportAsPdf(
       value: fmtPercent(report.totals.companyNetMarginPct),
     },
     {
-      label: "Total Tips Collected",
+      label: "Total Technician Tips",
       value: fmtCurrency(report.totals.totalTips),
     },
-    lastMonth
-      ? {
-          label: `${lastMonth.month} Gross`,
-          value: fmtCurrency(lastMonth.gross),
-        }
-      : { label: "Months Tracked", value: String(report.monthlyRows.length) },
+    {
+      label: "Total Deposits",
+      value: fmtCurrency(report.totals.totalDeposits),
+    },
   ];
 
   // Build rows: [labelA, valueA, labelB, valueB, labelC, valueC]
@@ -1563,6 +1597,20 @@ export async function exportDashboardReportAsPdf(
 
   // ── Technician table ──────────────────────────────────────────────────────
   const totalTechPay = report.technicianRows.reduce((s, t) => s + t.techPay, 0);
+  const totalTechGross = report.technicianRows.reduce(
+    (s, t) => s + t.grossRevenue,
+    0,
+  );
+  const totalTechParts = report.technicianRows.reduce((s, t) => s + t.parts, 0);
+  const totalTechTips = report.technicianRows.reduce((s, t) => s + t.tips, 0);
+  const totalTechNet = report.technicianRows.reduce(
+    (s, t) => s + t.netRevenue,
+    0,
+  );
+  const totalTechCompanyNet = report.technicianRows.reduce(
+    (s, t) => s + t.companyNet,
+    0,
+  );
 
   tbl(doc, {
     startY: techBannerY + 18,
@@ -1596,12 +1644,12 @@ export async function exportDashboardReportAsPdf(
       [
         "TOTAL",
         String(report.totals.totalJobsCompleted),
-        fmtCurrency(report.totals.grossRevenue),
-        fmtCurrency(report.totals.partsCost),
-        fmtCurrency(report.totals.totalTips),
-        fmtCurrency(report.totals.netRevenue),
+        fmtCurrency(totalTechGross),
+        fmtCurrency(totalTechParts),
+        fmtCurrency(totalTechTips),
+        fmtCurrency(totalTechNet),
         fmtCurrency(totalTechPay),
-        fmtCurrency(report.totals.companyNet),
+        fmtCurrency(totalTechCompanyNet),
         `Margin: ${report.totals.companyNetMarginPct.toFixed(1)}%`,
       ],
     ],
@@ -1670,6 +1718,18 @@ export async function exportDashboardReportAsPdf(
   // Monthly stat strip - jobs + gross inline
   const totalMonthJobs = report.monthlyRows.reduce((s, m) => s + m.jobs, 0);
   const totalMonthGross = report.monthlyRows.reduce((s, m) => s + m.gross, 0);
+  const totalMonthParts = report.monthlyRows.reduce((s, m) => s + m.parts, 0);
+  const totalMonthNet = report.monthlyRows.reduce((s, m) => s + m.net, 0);
+  const totalMonthTechPay = report.monthlyRows.reduce(
+    (s, m) => s + m.techPay,
+    0,
+  );
+  const totalMonthCompanyNet = report.monthlyRows.reduce(
+    (s, m) => s + m.companyNet,
+    0,
+  );
+  const totalMonthCompanyNetPct =
+    totalMonthGross > 0 ? (totalMonthCompanyNet / totalMonthGross) * 100 : 0;
   banner(
     61,
     16,
@@ -1712,12 +1772,12 @@ export async function exportDashboardReportAsPdf(
         "TOTAL",
         String(totalMonthJobs),
         fmtCurrency(totalMonthGross),
-        fmtCurrency(report.totals.partsCost),
-        fmtCurrency(report.totals.netRevenue),
-        fmtCurrency(totalTechPay),
-        fmtCurrency(report.totals.companyNet),
+        fmtCurrency(totalMonthParts),
+        fmtCurrency(totalMonthNet),
+        fmtCurrency(totalMonthTechPay),
+        fmtCurrency(totalMonthCompanyNet),
         "100.0%",
-        fmtPercent(report.totals.companyNetMarginPct),
+        fmtPercent(totalMonthCompanyNetPct),
       ],
     ],
     theme: "grid",
