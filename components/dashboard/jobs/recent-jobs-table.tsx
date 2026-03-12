@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
@@ -15,18 +16,8 @@ import {
 import { useFetchViewJobRow } from "@/hooks/jobs/useFetchJobTable";
 import { useFetchTechSummary } from "@/hooks/technicians/useFetchTechSummary";
 import { useFetchTechnicians } from "@/hooks/technicians/useFetchTechnicians";
-
-// helpers
-
-const shortId = (value: string | null) => {
-  if (!value) return "";
-  return value.slice(0, 8);
-};
-
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
-    n,
-  );
+import { shortId, fmt } from "@/lib/helper";
+import { paymentStatusColors } from "@/components/dashboard/jobs/job-view-dialog";
 
 export function RecentJobsTable() {
   const { data: jobs = [], isLoading, isError } = useFetchViewJobRow();
@@ -96,22 +87,29 @@ export function RecentJobsTable() {
           <Spinner />
         </div>
       ) : isError ? (
-        <div className="rounded-b-xl bg-red-50 p-6 text-center text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+        <div className="rounded-b-xl bg-destructive/10 p-6 text-center text-sm text-destructive">
           Failed to load jobs.
         </div>
       ) : (
-        <div className="max-h-120 overflow-y-auto overflow-x-auto">
+        <div className="max-h-120 overflow-y-auto overflow-x-auto text-nowrap">
           <Table>
             <TableHeader>
-              <TableRow className="border-b border-border">
+              <TableRow className="border-b border-border bg-card hover:bg-card">
                 {[
                   "ID",
                   "Job Name",
                   "Date",
                   "Address",
                   "Technician",
-                  "Gross",
+                  "Subtotal",
+                  "Deposit",
+                  "Payment",
+                  "Tip",
                   "Parts Cost",
+                  "Net Revenue",
+                  "Commission",
+                  "Company Net",
+                  "Review",
                 ].map((label) => (
                   <TableHead
                     key={label}
@@ -126,7 +124,7 @@ export function RecentJobsTable() {
               {recentJobs.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={14}
                     className="px-4 py-8 text-center text-sm text-muted-foreground"
                   >
                     No jobs found.
@@ -144,7 +142,11 @@ export function RecentJobsTable() {
                   return (
                     <TableRow
                       key={job.work_order_id}
-                      className="cursor-pointer transition-colors hover:bg-muted/50"
+                      className={cn(
+                        "cursor-pointer transition-colors hover:bg-muted/50",
+                        job.payment_status === "partial" && "bg-warning/10",
+                        job.status === "pending" && "bg-info/10",
+                      )}
                     >
                       {/* ID */}
                       <TableCell className="whitespace-nowrap text-muted-foreground">
@@ -161,7 +163,7 @@ export function RecentJobsTable() {
                           : "-"}
                       </TableCell>
                       {/* Address */}
-                      <TableCell className="font-medium text-foreground">
+                      <TableCell className="max-w-sm truncate font-medium text-foreground">
                         {job.address ?? "-"}
                         {job.region && (
                           <span className="ml-1.5 text-xs text-muted-foreground">
@@ -186,13 +188,66 @@ export function RecentJobsTable() {
                           )}
                         </div>
                       </TableCell>
-                      {/* Gross */}
+                      {/* Subtotal */}
                       <TableCell className="tabular-nums font-medium text-foreground">
                         {fmt(job.subtotal ?? 0)}
+                      </TableCell>
+                      {/* Deposits */}
+                      <TableCell
+                        className="tabular-nums text-[#64748B]"
+                        title="Excluded on the totals if fully paid"
+                      >
+                        {fmt(job.deposits ?? 0)}
+                      </TableCell>
+                      {/* Payment Status */}
+                      <TableCell className="text-center">
+                        <div className="flex justify-center">
+                          <span
+                            className={cn(
+                              "inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
+                              paymentStatusColors[
+                                (
+                                  job.payment_status as "full" | "partial"
+                                ).toLowerCase()
+                              ] ?? "bg-muted text-muted-foreground",
+                            )}
+                          >
+                            {job.payment_status ?? "-"}
+                          </span>
+                        </div>
+                      </TableCell>
+                      {/* Tip */}
+                      <TableCell className="tabular-nums font-medium text-foreground">
+                        {fmt(job.tip_amount ?? 0)}
                       </TableCell>
                       {/* Parts Cost */}
                       <TableCell className="tabular-nums text-primary">
                         {fmt(job.parts_total_cost ?? 0)}
+                      </TableCell>
+                      {/* Net Revenue */}
+                      <TableCell
+                        className="tabular-nums font-medium text-chart-3"
+                        title="Revenue = Subtotal - Parts Costs"
+                      >
+                        {fmt(job.net_revenue ?? 0)}
+                      </TableCell>
+                      {/* Commission */}
+                      <TableCell
+                        className="tabular-nums text-amber-600"
+                        title="Commission = Net Revenue * Commission Rate"
+                      >
+                        {fmt(job.total_commission ?? 0)}
+                      </TableCell>
+                      {/* Company Net */}
+                      <TableCell
+                        className="tabular-nums font-medium text-success"
+                        title="Company Net = Net Revenue - Commission"
+                      >
+                        {fmt(job.total_company_net ?? 0)}
+                      </TableCell>
+                      {/* Review */}
+                      <TableCell className="tabular-nums font-medium text-foreground">
+                        {fmt(job.review_amount ?? 0)}
                       </TableCell>
                     </TableRow>
                   );
