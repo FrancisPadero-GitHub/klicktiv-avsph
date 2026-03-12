@@ -15,6 +15,7 @@ import { d, dSub, dToNum } from "@/lib/decimal";
 export interface DashboardMetrics {
   grossRevenue: number;
   netRevenue: number;
+  technicianCommission: number;
   companyNet: number;
 
   totalTips: number;
@@ -187,6 +188,7 @@ export function useDashboardData() {
     let totalTips = d(0);
     let totalDeposits = d(0);
 
+    let technicianCommissionTotal = d(0);
     let companyNet = d(0);
 
     let totalReviewAmount = d(0);
@@ -210,6 +212,10 @@ export function useDashboardData() {
         const jobNet = subtotal.minus(parts);
         netRevenue = netRevenue.plus(jobNet);
 
+        const technicianCommission = jobNet.times(d(rate).dividedBy(100));
+        technicianCommissionTotal =
+          technicianCommissionTotal.plus(technicianCommission);
+
         const companyPart = jobNet.times(d(1).minus(d(rate).dividedBy(100)));
         companyNet = companyNet.plus(companyPart);
       }
@@ -230,13 +236,14 @@ export function useDashboardData() {
     const avgRevenuePerJob =
       totalDoneJobs > 0 ? grossRevenue.dividedBy(totalDoneJobs) : d(0);
 
-    const companyNetMarginPct = grossRevenue.isZero()
+    const companyNetMarginPct = netRevenue.isZero()
       ? d(0)
-      : companyNet.dividedBy(grossRevenue).times(100);
+      : companyNet.dividedBy(netRevenue).times(100);
 
     return {
       grossRevenue: dToNum(grossRevenue),
       netRevenue: dToNum(netRevenue),
+      technicianCommission: dToNum(technicianCommissionTotal),
       companyNet: dToNum(companyNet),
 
       totalTips: dToNum(totalTips),

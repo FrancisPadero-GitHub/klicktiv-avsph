@@ -11,6 +11,7 @@ import {
   BarChart,
   Factory,
   Award,
+  AirVent,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fmtUSD } from "@/lib/decimal";
@@ -43,7 +44,7 @@ export function DashboardKPIs({ metrics }: DashboardKPIsProps) {
       label: "Deposits Received",
       value: fmtUSD(metrics.totalDeposits),
       icon: PiggyBank,
-      sub: "Total deposits received",
+      sub: "Uncounted in revenue upon fully paid jobs",
       color: "text-[#64748B]",
       bg: "bg-accent",
     },
@@ -64,19 +65,20 @@ export function DashboardKPIs({ metrics }: DashboardKPIsProps) {
       bg: "bg-accent",
     },
     {
-      label: "Net Margin",
-      value: `${metrics.companyNetMarginPct}%`,
-      icon: Percent,
-      sub: "Company net / gross",
-      color: "text-blue-600 dark:text-blue-400",
-      bg: "bg-accent",
-    },
-    {
       label: "Avg Revenue / Job",
       value: fmtUSD(metrics.avgRevenuePerJob),
-      icon: BarChart,
+      icon: AirVent,
       sub: `Based on ${metrics.doneJobs} done jobs`,
       color: "text-amber-600",
+      bg: "bg-accent",
+    },
+
+    {
+      label: "Total Commission",
+      value: fmtUSD(metrics.technicianCommission),
+      icon: BarChart,
+      color: "text-amber-600",
+      sub: "After tech payouts, excluded tips",
       bg: "bg-accent",
     },
     {
@@ -87,12 +89,21 @@ export function DashboardKPIs({ metrics }: DashboardKPIsProps) {
       color: "text-success",
       bg: "bg-accent",
     },
+    {
+      label: "Net Margin",
+      value: `${metrics.companyNetMarginPct}%`,
+      icon: Percent,
+      sub: "Company net % of gross revenue",
+      color: "text-success",
+      bg: "bg-accent",
+    },
 
     {
       label: "Technician Tips",
       value: fmtUSD(metrics.totalTips),
       icon: Award,
       color: "text-yellow-500 dark:text-yellow-400",
+      sub: "Excluded from all calculations",
       bg: "bg-accent",
     },
 
