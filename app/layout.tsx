@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     siteName: "Klicktiv",
     images: [
       {
-        url: "/website_pic.png",
+        url: "/klicktiv.io.png",
         width: 1200,
         height: 630,
         alt: "Klicktiv Landing Page",
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     title: "Klicktiv | Financial Orchestration for Field Service",
     description:
       "Klicktiv centralizes job reporting, automates commission splits, and delivers synchronous revenue dashboards for field service businesses.",
-    images: ["/website_pic.png"],
+    images: ["/klicktiv.io.png"],
   },
 };
 

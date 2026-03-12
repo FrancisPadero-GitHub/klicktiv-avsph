@@ -1,6 +1,6 @@
 # Klicktiv
 
-![Klicktiv landing page](public/website_pic.png)
+![Klicktiv landing page](public/klicktiv.io.png)
 
 Klicktiv centralizes job reporting, automates commission splits, and delivers synchronous revenue dashboards for field service businesses. Built for chimney, HVAC, and dryer vent service companies tired of juggling spreadsheets.
 
