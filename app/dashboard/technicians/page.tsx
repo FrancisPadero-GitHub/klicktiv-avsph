@@ -13,7 +13,7 @@ export default function TechniciansPage() {
   const activeCount = techSummary.length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-semibold tracking-tight text-foreground">

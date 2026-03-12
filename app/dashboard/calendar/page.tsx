@@ -4,7 +4,7 @@ import { JobsCalendar } from "@/components/dashboard/calendar/jobs-calendar";
 
 export default function CalendarPage() {
   return (
-    <div className="space-y-6 flex flex-col h-full min-h-[calc(100vh-8rem)]">
+    <div className="space-y-4 flex flex-col h-full min-h-[calc(100vh-8rem)]">
       {/* Header */}
       <div>
         <h2 className="text-2xl font-semibold tracking-tight text-foreground">

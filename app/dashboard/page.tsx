@@ -47,7 +47,7 @@ export default function DashboardPage() {
   } = useDashboardData();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {/* Header + Date Filters */}
       <div className="space-y-4">
         <div>
@@ -59,20 +59,22 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+        <div className="flex flex-col gap-3 justify-between xl:flex-row xl:items-start">
           <DashboardDateFilter />
           {isAdmin ? (
-            <DashboardExportButton
-              currentJobs={jobs}
-              technicians={technicians}
-              techNameMap={techNameMap}
-            />
+            <div className="self-start">
+              <DashboardExportButton
+                currentJobs={jobs}
+                technicians={technicians}
+                techNameMap={techNameMap}
+              />
+            </div>
           ) : null}
         </div>
       </div>
 
       {/* Content, loading / error / data */}
-      <div className="space-y-8">
+      <div className="space-y-4">
         <QueryStatePanel
           isLoading={kpisState.isLoading}
           isError={kpisState.isError}

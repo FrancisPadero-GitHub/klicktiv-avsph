@@ -523,7 +523,7 @@ export function buildDashboardExportReport({
   const avgRevenuePerJob =
     totalJobs > 0 ? dToNum(grossRevenue.dividedBy(totalJobs)) : 0;
   const companyNetMarginPct =
-    gross > 0 ? dToNum(companyNet.dividedBy(grossRevenue).times(100), 1) : 0;
+    net > 0 ? dToNum(companyNet.dividedBy(netRevenue).times(100), 1) : 0;
 
   const technicianRows = Array.from(technicianAgg.values()).sort(
     (a, b) => b.grossRevenue - a.grossRevenue,
@@ -1127,9 +1127,9 @@ export async function exportDashboardReportAsExcel(
         fmt: FMT_CURRENCY,
       },
       {
-        label: "Total Jobs Completed",
-        value: report.totals.totalJobsCompleted,
-        fmt: FMT_INT,
+        label: "Total Technician Tips",
+        value: report.totals.totalTips,
+        fmt: FMT_CURRENCY,
       },
       {
         label: "Avg Revenue Per Job",
@@ -1200,37 +1200,6 @@ export async function exportDashboardReportAsExcel(
     }
     r++;
   }
-
-  set(0, "Total Technician Tips", {
-    fill: { fgColor: { rgb: PALE_BLUE } },
-    font: {
-      italic: true,
-      color: { rgb: TEXT_MID },
-      sz: 9,
-      name: "Calibri",
-    },
-    alignment: { horizontal: "center", vertical: "bottom" },
-    border: { top: bdrThin(), left: bdrThin(BLUE), right: bdrThin(BLUE) },
-  });
-  span(0, 5);
-  set(
-    6,
-    report.totals.totalTips,
-    {
-      fill: { fgColor: { rgb: WHITE } },
-      font: { bold: true, color: { rgb: NAVY }, sz: 14, name: "Calibri" },
-      alignment: { horizontal: "center", vertical: "center" },
-      border: {
-        bottom: bdrMed(BLUE),
-        left: bdrThin(BLUE),
-        right: bdrThin(BLUE),
-      },
-    },
-    FMT_CURRENCY,
-  );
-  span(6, 8);
-  r++;
-
   r++; // spacer
 
   // ── Technician section header ──────────────────────────────────────────────
@@ -1562,8 +1531,8 @@ export async function exportDashboardReportAsPdf(
       value: fmtCurrency(report.totals.companyNet),
     },
     {
-      label: "Total Jobs Completed",
-      value: String(report.totals.totalJobsCompleted),
+      label: "Total Technician Tips",
+      value: fmtCurrency(report.totals.totalTips),
     },
     {
       label: "Avg Revenue Per Job",
@@ -1656,28 +1625,6 @@ export async function exportDashboardReportAsPdf(
       if (data.column.index === 1 || data.column.index === 3) {
         data.cell.styles.lineColor = [120, 200, 160];
       }
-    },
-  });
-
-  const techTipsKpiY = (docX.lastAutoTable?.finalY ?? kpiY + 90) + 4;
-  tbl(doc, {
-    startY: techTipsKpiY,
-    margin: { left: MARGIN, right: MARGIN },
-    tableWidth: CWIDTH,
-    body: [["Total Technician Tips", fmtCurrency(report.totals.totalTips)]],
-    theme: "grid",
-    headStyles: {
-      fillColor: TEAL_COL,
-      textColor: WHITE,
-      fontStyle: "bold",
-      fontSize: 8,
-      halign: "left",
-    },
-    bodyStyles: { fontSize: 9, textColor: TEXT_DARK, cellPadding: 4 },
-    styles: { lineWidth: 0.3, lineColor: DIVIDER },
-    columnStyles: {
-      0: { cellWidth: CWIDTH * 0.67, halign: "left", fontStyle: "bold" },
-      1: { cellWidth: CWIDTH * 0.33, halign: "right", fontStyle: "bold" },
     },
   });
 

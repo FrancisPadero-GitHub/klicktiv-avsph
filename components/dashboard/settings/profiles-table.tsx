@@ -42,7 +42,7 @@ export function ProfilesTable() {
       loadingMessage="Loading profiles..."
       className="min-h-80"
     >
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -98,10 +98,7 @@ export function ProfilesTable() {
                     : "-";
 
                   return (
-                    <TableRow
-                      key={profile.id}
-                      className="border-border"
-                    >
+                    <TableRow key={profile.id} className="border-border">
                       <TableCell className="font-medium text-foreground">
                         {fullName || (
                           <span className="text-muted-foreground/50 italic">
@@ -115,7 +112,9 @@ export function ProfilesTable() {
                             @{profile.username}
                           </span>
                         ) : (
-                          <span className="text-muted-foreground/50 italic">-</span>
+                          <span className="text-muted-foreground/50 italic">
+                            -
+                          </span>
                         )}
                       </TableCell>
                       <TableCell>

@@ -65,10 +65,7 @@ function StatusMessage({
   message: string;
 }) {
   const Icon = type === "success" ? CheckCircle2 : AlertCircle;
-  const colorClass =
-    type === "success"
-      ? "text-success"
-      : "text-destructive";
+  const colorClass = type === "success" ? "text-success" : "text-destructive";
 
   return (
     <p className={`flex items-center gap-1.5 text-xs ${colorClass}`}>
@@ -265,7 +262,9 @@ function UpdatePasswordDialog() {
               disabled={loading}
               required
               className={
-                mismatch ? "border-destructive focus-visible:ring-destructive" : ""
+                mismatch
+                  ? "border-destructive focus-visible:ring-destructive"
+                  : ""
               }
             />
             {mismatch && (
@@ -303,7 +302,7 @@ function UpdateInformation() {
   const companyName = company?.name ?? "-";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <h2 className="text-xl font-semibold text-foreground">
           Login Information
