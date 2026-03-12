@@ -36,9 +36,6 @@ export const metadata: Metadata = {
   authors: [{ name: "Klicktiv Team" }],
   creator: "Klicktiv",
   publisher: "Klicktiv",
-  alternates: {
-    canonical: "/",
-  },
   robots: {
     index: true,
     follow: true,
@@ -69,12 +66,27 @@ export const metadata: Metadata = {
   },
 };
 
-const jsonLdOrganization = {
+const jsonLdGraph = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Klicktiv",
-  url: "https://klicktiv.io",
-  logo: "https://klicktiv.io/kt_logo_only.png",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://klicktiv.io/#organization",
+      name: "Klicktiv",
+      url: "https://klicktiv.io",
+      logo: "https://klicktiv.io/kt_logo_only.png",
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://klicktiv.io/#website",
+      url: "https://klicktiv.io",
+      name: "Klicktiv",
+      publisher: {
+        "@id": "https://klicktiv.io/#organization",
+      },
+      inLanguage: "en-US",
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -90,7 +102,7 @@ export default function RootLayout({
           type="application/ld+json"
           strategy="beforeInteractive"
           // Structured data to help Google understand the brand entity.
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGraph) }}
         />
       </head>
       <body className={`${dmSans.variable} antialiased`}>

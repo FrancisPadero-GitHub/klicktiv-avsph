@@ -58,8 +58,11 @@ const socials = [
 
 export default function AVSSection() {
   return (
-    <section className="bg-background py-10">
+    <section className="bg-background py-10" aria-labelledby="avs-heading">
       <div className="mx-auto max-w-7xl px-6">
+        <h2 id="avs-heading" className="sr-only">
+          Powered by Advanced Virtual Staff
+        </h2>
         {/* Label */}
         <p className="animate-fade-up mb-12 text-center text-xs font-bold uppercase tracking-widest text-primary">
           Powered By

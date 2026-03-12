@@ -5,7 +5,6 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/dashboard/", "/auth/"],
     },
     sitemap: "https://klicktiv.io/sitemap.xml",
   };

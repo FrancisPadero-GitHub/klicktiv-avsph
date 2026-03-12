@@ -11,7 +11,7 @@ export default function Footer() {
       <p className="text-sm text-muted-foreground">
         Financial clarity for home service businesses.
       </p>
-      <div className="flex gap-6">
+      <nav aria-label="Footer links" className="flex gap-6">
         {[
           { label: "Privacy Policy", href: "#" },
           { label: "Terms of Service", href: "#" },
@@ -28,7 +28,7 @@ export default function Footer() {
             {label}
           </Link>
         ))}
-      </div>
+      </nav>
       <p className="text-sm text-muted-foreground">
         &copy; {year} Klicktiv. All rights reserved.
       </p>
