@@ -186,7 +186,7 @@ export function JobsCalendar() {
             value={month.toString()}
             onValueChange={(val) => setMonth(parseInt(val, 10))}
           >
-            <SelectTrigger className="w-32 h-9 text-base font-semibold border-none shadow-none focus:ring-0 pl-3 pr-1 rounded-r-none">
+            <SelectTrigger className="w-full h-9 text-base font-semibold border-none shadow-none focus:ring-0 pl-3 pr-1 rounded-r-none">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -203,7 +203,7 @@ export function JobsCalendar() {
             value={year.toString()}
             onValueChange={(val) => setYear(parseInt(val, 10))}
           >
-            <SelectTrigger className="w-20 h-9 text-base font-semibold border-none shadow-none focus:ring-0 pl-3 pr-2 rounded-l-none">
+            <SelectTrigger className="w-full h-9 text-base font-semibold border-none shadow-none focus:ring-0 pl-3 pr-2 rounded-l-none">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

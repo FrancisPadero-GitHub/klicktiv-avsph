@@ -12,8 +12,7 @@ export const fetchJobSummary = async (
   const { data: result, error } = await supabase
     .from("v_jobs_summary")
     .select("*")
-    .eq("company_id", companyId)
-    .order("created_at", { ascending: false });
+    .eq("company_id", companyId);
 
   if (error) {
     throw new Error(error.message || "Failed to fetch jobs");
