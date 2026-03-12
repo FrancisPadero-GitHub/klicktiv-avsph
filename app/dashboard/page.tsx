@@ -52,7 +52,7 @@ export default function DashboardPage() {
       <div className="space-y-4">
         <div>
           <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-            Overview
+            Overview / Reports
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Financial dashboard with date filtering

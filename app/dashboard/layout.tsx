@@ -28,7 +28,7 @@ import { useLogout } from "@/hooks/auth/useLogout";
 import FeedbackPage from "@/components/dashboard/submit-feedback/feedback-page";
 
 const navItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Overview / Reports", icon: LayoutDashboard },
   { href: "/dashboard/jobs", label: "Jobs", icon: Briefcase },
   { href: "/dashboard/calendar", label: "Jobs Calendar", icon: CalendarDays },
   { href: "/dashboard/estimates", label: "Estimates", icon: FileText },

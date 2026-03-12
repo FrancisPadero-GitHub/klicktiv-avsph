@@ -358,7 +358,7 @@ export function LogJobDialog({ showTrigger = true }: LogJobDialogProps) {
           }}
           className="flex flex-col flex-1 min-h-0"
         >
-          <div className="overflow-auto no-scrollbar flex-1 grid gap-6">
+          <div className="overflow-auto no-scrollbar flex-1 grid gap-6 p-2">
             <FieldGroup>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-1">
@@ -700,6 +700,7 @@ export function LogJobDialog({ showTrigger = true }: LogJobDialogProps) {
                               // triggers validation for parts_total_cost when subtotal changes
                               onChange: () => {
                                 void trigger("parts_total_cost");
+                                void trigger("deposits");
                               },
                             })}
                           />
@@ -769,6 +770,16 @@ export function LogJobDialog({ showTrigger = true }: LogJobDialogProps) {
                               min: {
                                 value: 0,
                                 message: "Deposit must be ≥ 0",
+                              },
+                              validate: (value) => {
+                                const deposit = Number(value) || 0;
+                                const subtotal = Number(subtotalValue) || 0;
+
+                                if (deposit > subtotal) {
+                                  return "Deposit cannot be more than the subtotal";
+                                }
+
+                                return true;
                               },
                             }}
                             render={({ field }) => (
