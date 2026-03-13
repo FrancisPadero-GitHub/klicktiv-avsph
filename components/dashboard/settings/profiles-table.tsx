@@ -48,7 +48,7 @@ export function ProfilesTable() {
           <div>
             <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
               <Users className="h-5 w-5" />
-              User Profiles
+              VA Accounts
             </h2>
             <p className="text-sm text-muted-foreground mt-0.5">
               {profiles?.length ?? 0} profile
@@ -139,7 +139,7 @@ export function ProfilesTable() {
             <Users className="h-10 w-10 mb-3 opacity-40" />
             <p className="text-sm font-medium">No profiles found</p>
             <p className="text-xs mt-1">
-              Created user profiles will appear here.
+              Created VA Accounts will appear here.
             </p>
           </div>
         )}

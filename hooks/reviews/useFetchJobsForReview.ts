@@ -3,6 +3,12 @@ import { useAuth } from "@/components/auth-provider";
 import { supabase } from "@/lib/supabase";
 import type { Database } from "@/database.types";
 
+/**This file fetches the v_jobs because of its columsn on reviews to determine which
+ * jobs are to review yet
+ *
+ * However this is not used for now
+ */
+
 export type JobRow = Database["public"]["Views"]["v_jobs"]["Row"];
 
 const fetchJobs = async (companyId: string): Promise<JobRow[]> => {

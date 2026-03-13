@@ -33,7 +33,7 @@ const tabs: Array<{
   },
   {
     id: "profiles",
-    label: "User Profiles",
+    label: "VA Accounts",
     icon: Users,
     description: "View all registered profiles",
   },
