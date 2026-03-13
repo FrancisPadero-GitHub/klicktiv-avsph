@@ -36,7 +36,7 @@ export function useFetchNotifications() {
     queryKey,
     queryFn: () => {
       if (!companyId) {
-        throw new Error("Company ID or user ID is missing from user session");
+        throw new Error("Company ID is missing from user session");
       }
 
       return fetchNotifications(companyId);
@@ -55,7 +55,7 @@ export function useFetchNotifications() {
           event: "*",
           schema: "public",
           table: "notifications",
-          filter: `user_id=eq.${companyId}`,
+          filter: `company_id=eq.${companyId}`,
         },
         () => {
           void queryClient.invalidateQueries({ queryKey });

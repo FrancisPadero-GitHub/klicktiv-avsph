@@ -47,13 +47,8 @@ const updateNotification = async (
 export function useUpdateNotifications() {
   const { session } = useAuth();
   const companyId = session?.user.app_metadata.company_id as string | undefined;
-  const userId = session?.user.id;
   const queryClient = useQueryClient();
-  const queryKey = [
-    "notifications",
-    companyId ?? null,
-    userId ?? null,
-  ] as const;
+  const queryKey = ["notifications", companyId ?? null] as const;
 
   const mutation = useMutation({
     mutationFn: updateNotification,

@@ -22,9 +22,9 @@ function Topbar() {
           aria-label="Toggle sidebar"
         >
           {desktopCollapsed === true ? (
-            <PanelLeftClose className="h-6 w-6" />
+            <PanelLeftClose className="h-5 w-5" />
           ) : (
-            <PanelLeftOpen className="h-6 w-6" />
+            <PanelLeftOpen className="h-5 w-5" />
           )}
         </button>
 
@@ -38,9 +38,9 @@ function Topbar() {
           aria-label="Toggle mobile sidebar"
         >
           {sidebarState === "expand" ? (
-            <PanelLeftClose className="h-6 w-6" />
+            <PanelLeftClose className="h-5 w-5" />
           ) : (
-            <PanelLeftOpen className="h-6 w-6" />
+            <PanelLeftOpen className="h-5 w-5" />
           )}
         </button>
       </h1>

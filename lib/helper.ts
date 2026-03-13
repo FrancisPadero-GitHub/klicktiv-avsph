@@ -3,6 +3,25 @@ export const shortId = (value: string | null) => {
   return value.slice(0, 8);
 };
 
+export const formatEntityType = (entityType: string | null | undefined) => {
+  if (!entityType) return "";
+
+  const mapping: Record<string, string> = {
+    work_order: "Work Order",
+    estimate: "Estimate",
+    jobs: "Jobs",
+    review_records: "Review Records",
+  };
+
+  return (
+    mapping[entityType] ||
+    entityType
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
+  );
+};
+
 export const fmt = (n: number) => {
   if (n === 0) return "0";
   return new Intl.NumberFormat("en-US", {

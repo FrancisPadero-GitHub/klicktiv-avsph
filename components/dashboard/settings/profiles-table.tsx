@@ -118,9 +118,7 @@ export function ProfilesTable() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <RoleBadge
-                          role={profile.role === "user" ? "VA" : "-"}
-                        />
+                        <RoleBadge role={profile.role} />
                       </TableCell>
                       <TableCell>
                         <RoleBadge role={profile.email} />

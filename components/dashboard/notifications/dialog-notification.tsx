@@ -11,15 +11,23 @@ import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, ExternalLink } from "lucide-react";
 import { relativeTime } from "./sidebar-notifcation";
+import { formatEntityType, fmt, shortId } from "@/lib/helper";
+import {
+  Bell,
+  Clock,
+  Inbox,
+  CheckCircle2,
+  Tag,
+  Hash,
+  Calendar,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface NotificationDetailDialogProps {
   notification: NotificationsRow | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onDelete: (id: string) => void;
-  isPending: boolean;
 }
 
 function absoluteTime(dateStr: string | null) {
@@ -31,189 +39,262 @@ function absoluteTime(dateStr: string | null) {
   }
 }
 
+const currencyKey = /amount|subtotal|deposits|tip|parts|price|balance/i;
+const dateKey = /(date|created_at|promoted_at)/i;
+const idKey = /_id$/i;
+
+const formatKey = (key: string) =>
+  key
+    .replace(/_/g, " ")
+    .split(" ")
+    .map((word) => (word ? word[0].toUpperCase() + word.slice(1) : word))
+    .join(" ");
+
+const formatValue = (key: string, value: unknown): string => {
+  if (value === null || typeof value === "undefined" || value === "") {
+    return "–";
+  }
+  if (typeof value === "number") {
+    return currencyKey.test(key) ? fmt(value) : String(value);
+  }
+  if (typeof value === "string") {
+    if (dateKey.test(key)) return absoluteTime(value) ?? value;
+    if (idKey.test(key)) return shortId(value);
+    return value.replace(/_/g, " ");
+  }
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+  return JSON.stringify(value);
+};
+
+const getOrderedEntries = (data: Record<string, unknown>) => {
+  const priorityKeys = [
+    "work_order_id",
+    "job_id",
+    "review_id",
+    "estimated_amount",
+    "amount",
+    "subtotal",
+    "deposits",
+    "payment_status",
+    "status",
+    "review_date",
+    "promoted_at",
+    "created_at",
+  ];
+  const entries: Array<[string, unknown]> = [];
+  const seen = new Set<string>();
+  priorityKeys.forEach((key) => {
+    if (key in data) {
+      entries.push([key, data[key]]);
+      seen.add(key);
+    }
+  });
+  Object.entries(data).forEach(([key, value]) => {
+    if (!seen.has(key)) entries.push([key, value]);
+  });
+  return entries;
+};
+
+/* ─── Tiny helpers ─── */
+function NotificationTypeIcon() {
+  return (
+    <div
+      className={cn(
+        "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+        "bg-primary/10 text-primary ring-4 ring-primary/5",
+      )}
+    >
+      <Bell className="h-4.5 w-4.5" />
+    </div>
+  );
+}
+
+function MetaRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string | null | undefined;
+}) {
+  if (!value) return null;
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex h-5 w-5 shrink-0 items-center justify-center text-muted-foreground">
+        <Icon className="h-3.5 w-3.5" />
+      </div>
+      <div className="flex min-w-0 flex-1 items-start justify-between gap-4">
+        <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+          {label}
+        </span>
+        <span className="text-right text-xs text-foreground">{value}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function NotificationDetailDialog({
   notification,
   open,
   onOpenChange,
-  onDelete,
-  isPending,
 }: NotificationDetailDialogProps) {
   if (!notification) return null;
 
-  // Parse `data` JSON safely
-  let parsedData: Record<string, unknown> | null = null;
-  if (notification.data && typeof notification.data === "object") {
-    parsedData = notification.data as Record<string, unknown>;
-  }
+  const parsedData =
+    notification.data && typeof notification.data === "object"
+      ? (notification.data as Record<string, unknown>)
+      : null;
 
+  const orderedEntries = parsedData ? getOrderedEntries(parsedData) : [];
   const isRead = Boolean(notification.read_at);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md">
-        {/* Header */}
-        <DialogHeader className="border-b px-6 py-4">
+      <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-110">
+        {/* ── Unread accent strip ── */}
+        {!isRead && (
+          <div className="h-1 w-full bg-linear-to-r from-primary via-primary/70 to-transparent" />
+        )}
+
+        {/* ── Header ── */}
+        <DialogHeader className="px-5 pt-5 pb-4">
           <div className="flex items-start gap-3">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <NotificationTypeIcon />
+
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              {/* badges row */}
+              <div className="flex flex-wrap items-center gap-1.5">
                 {!isRead && (
                   <Badge
                     variant="destructive"
-                    className="text-[10px] h-4 px-1.5"
+                    className="h-4 px-1.5 text-[10px]"
                   >
                     Unread
                   </Badge>
                 )}
-                {notification.entity_type && (
-                  <Badge
-                    variant="secondary"
-                    className="text-[10px] h-4 px-1.5 capitalize"
-                  >
-                    {notification.entity_type}
-                  </Badge>
-                )}
               </div>
-              <DialogTitle className="text-base leading-snug">
+
+              <DialogTitle className="text-sm font-semibold leading-snug">
                 {notification.title}
               </DialogTitle>
-              <DialogDescription className="mt-1 text-xs text-muted-foreground">
+
+              <DialogDescription className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                <Clock className="h-3 w-3 shrink-0" />
                 {relativeTime(notification.created_at)}
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
-        {/* Body */}
-        <ScrollArea className="max-h-[60vh]">
+        <ScrollArea className="max-h-[58vh]">
           <div className="flex flex-col gap-0 divide-y divide-border">
-            {/* Notification body text */}
+            {/* ── Body message ── */}
             {notification.body && (
-              <div className="px-6 py-4">
+              <div className="px-5 py-4">
                 <p className="text-sm leading-relaxed text-foreground">
                   {notification.body}
                 </p>
               </div>
             )}
 
-            {/* Meta fields */}
-            <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-6 py-4 text-xs">
-              {/* Created at */}
-              <span className="text-muted-foreground font-medium whitespace-nowrap">
-                Received
-              </span>
-              <span className="text-foreground">
-                {absoluteTime(notification.created_at)}
-              </span>
-
-              {/* Delivered at */}
-              {notification.delivered_at && (
-                <>
-                  <span className="text-muted-foreground font-medium whitespace-nowrap">
-                    Delivered
-                  </span>
-                  <span className="text-foreground">
-                    {absoluteTime(notification.delivered_at)}
-                  </span>
-                </>
-              )}
-
-              {/* Read at */}
-              {notification.read_at && (
-                <>
-                  <span className="text-muted-foreground font-medium whitespace-nowrap">
-                    Read
-                  </span>
-                  <span className="text-foreground">
-                    {absoluteTime(notification.read_at)}
-                  </span>
-                </>
-              )}
-
-              {/* Entity type + ID */}
-              {notification.entity_type && (
-                <>
-                  <span className="text-muted-foreground font-medium whitespace-nowrap">
-                    Type
-                  </span>
-                  <span className="text-foreground capitalize">
-                    {notification.entity_type}
-                  </span>
-                </>
-              )}
-              {notification.entity_id && (
-                <>
-                  <span className="text-muted-foreground font-medium whitespace-nowrap">
-                    Reference&nbsp;ID
-                  </span>
-                  <span className="font-mono text-[11px] text-foreground break-all">
-                    {notification.entity_id}
-                  </span>
-                </>
-              )}
-
-              {/* Dedupe key */}
-              {notification.dedupe_key && (
-                <>
-                  <span className="text-muted-foreground font-medium whitespace-nowrap">
-                    Dedupe&nbsp;Key
-                  </span>
-                  <span className="font-mono text-[11px] text-foreground break-all">
-                    {notification.dedupe_key}
-                  </span>
-                </>
-              )}
-            </div>
-
-            {/* Extra data payload (JSON) */}
-            {parsedData && Object.keys(parsedData).length > 0 && (
-              <div className="px-6 py-4">
-                <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Additional Data
+            {/* ── Data details ── */}
+            {orderedEntries.length > 0 && (
+              <div className="px-5 py-4">
+                <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Details
                 </p>
-                <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2.5 text-xs">
-                  {Object.entries(parsedData).map(([key, value]) => (
-                    <span key={key} className="contents">
-                      <span className="text-muted-foreground font-medium capitalize whitespace-nowrap">
-                        {key.replace(/_/g, " ")}
+                <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2.5">
+                  {orderedEntries.map(([key, value]) => (
+                    <span key={key} className="contents text-xs">
+                      <span className="font-medium text-muted-foreground whitespace-nowrap">
+                        {formatKey(key)}
                       </span>
-                      <span className="text-foreground break-all">
-                        {typeof value === "object"
-                          ? JSON.stringify(value)
-                          : String(value ?? "—")}
+                      <span
+                        className={cn(
+                          "break-all text-foreground",
+                          currencyKey.test(key) && "font-semibold text-primary",
+                        )}
+                      >
+                        {formatValue(key, value)}
                       </span>
                     </span>
                   ))}
                 </div>
               </div>
             )}
+
+            {/* ── Timeline meta ── */}
+            <div className="px-5 py-4">
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                Timeline
+              </p>
+              <div className="flex flex-col gap-2.5">
+                <MetaRow
+                  icon={Inbox}
+                  label="Received"
+                  value={absoluteTime(notification.created_at)}
+                />
+                {notification.delivered_at && (
+                  <MetaRow
+                    icon={CheckCircle2}
+                    label="Delivered"
+                    value={absoluteTime(notification.delivered_at)}
+                  />
+                )}
+                {notification.read_at && (
+                  <MetaRow
+                    icon={CheckCircle2}
+                    label="Read"
+                    value={absoluteTime(notification.read_at)}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* ── Reference meta ── */}
+            {(notification.entity_type || notification.entity_id) && (
+              <div className="px-5 py-4">
+                <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Reference
+                </p>
+                <div className="flex flex-col gap-2.5">
+                  {notification.entity_type && (
+                    <MetaRow
+                      icon={Tag}
+                      label="Type"
+                      value={formatEntityType(notification.entity_type)}
+                    />
+                  )}
+                  {notification.entity_id && (
+                    <MetaRow
+                      icon={Hash}
+                      label="ID"
+                      value={shortId(notification.entity_id)}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </ScrollArea>
 
-        {/* Footer actions */}
-        <div className="flex items-center justify-between border-t px-6 py-3">
+        {/* ── Footer ── */}
+        <div className="flex items-center justify-between border-t bg-muted/30 px-5 py-3">
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Calendar className="h-3.5 w-3.5" />
+            {absoluteTime(notification.created_at)}
+          </span>
           <Button
-            variant="destructive"
+            variant="ghost"
             size="sm"
-            className="gap-1.5"
-            disabled={isPending}
-            onClick={() => {
-              onDelete(notification.id);
-              onOpenChange(false);
-            }}
+            className="h-7 text-xs"
+            onClick={() => onOpenChange(false)}
           >
-            <Trash2 className="h-3.5 w-3.5" />
-            Delete
+            Dismiss
           </Button>
-          {notification.entity_id && notification.entity_type && (
-            <Button variant="outline" size="sm" className="gap-1.5" asChild>
-              <a
-                href={`#${notification.entity_type}/${notification.entity_id}`}
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                View {notification.entity_type}
-              </a>
-            </Button>
-          )}
         </div>
       </DialogContent>
     </Dialog>

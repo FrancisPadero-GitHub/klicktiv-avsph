@@ -58,7 +58,7 @@ export const fetchAllProfiles = async (
     .from("profiles")
     .select("*")
     .eq("company_id", companyId)
-    .neq("role", "super_admin")
+    .neq("role", "company")
     .order("updated_at", { ascending: false });
 
   if (error) {

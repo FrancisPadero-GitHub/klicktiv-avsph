@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Bell, CheckCheck, InboxIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,6 @@ import { useUpdateNotifications } from "@/hooks/notifications/useUpdateNotificat
 import type { NotificationsRow } from "@/hooks/notifications/useFetchNotifications";
 import { cn } from "@/lib/utils";
 import NotificationDetailDialog from "./dialog-notification";
-
 import NotificationItem from "./item-notifications";
 
 export default function SidebarNotification() {
@@ -49,7 +48,6 @@ export default function SidebarNotification() {
   const handleViewDetail = (notification: NotificationsRow) => {
     setSelectedNotification(notification);
     setDetailOpen(true);
-    // Auto-mark as read when opened
     if (!notification.read_at) {
       updateReadAt(notification.id);
     }
@@ -57,17 +55,13 @@ export default function SidebarNotification() {
 
   return (
     <div>
-      {/* ── Detail dialog (rendered outside Sheet to avoid nesting issues) ── */}
       <NotificationDetailDialog
         notification={selectedNotification}
         open={detailOpen}
         onOpenChange={setDetailOpen}
-        onDelete={softDeleteNotification}
-        isPending={isPending}
       />
 
       <Sheet>
-        {/* ── Trigger: Bell icon with badge dot ── */}
         <SheetTrigger asChild>
           <Button
             variant="ghost"
@@ -87,58 +81,64 @@ export default function SidebarNotification() {
           </Button>
         </SheetTrigger>
 
-        {/* ── Panel content ── */}
         <SheetContent
           side="right"
-          className="flex w-full flex-col gap-0 p-0 sm:max-w-sm"
-          showCloseButton={false}
+          className="flex w-[88vw] max-w-sm flex-col gap-0 p-0 sm:h-dvh sm:w-full sm:max-w-sm"
+          showCloseButton={true}
         >
-          {/* Header */}
-          <SheetHeader className="flex-row items-center justify-between border-b px-4 py-4.5">
-            <div className="flex items-center gap-2">
-              <SheetTitle className="text-base">Notifications</SheetTitle>
-              {hasUnread && (
-                <Badge
-                  variant="destructive"
-                  className="h-5 min-w-5 px-1.5 text-[10px]"
-                >
-                  {unreadCount}
-                </Badge>
-              )}
+          <SheetHeader className="flex-row items-start justify-between border-b px-4 ">
+            <div className="flex min-w-0 flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <SheetTitle className="text-base">Notifications</SheetTitle>
+                {hasUnread && (
+                  <Badge
+                    variant="destructive"
+                    className="h-5 min-w-5 px-1.5 text-[10px]"
+                  >
+                    {unreadCount}
+                  </Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Company updates and reminders.
+              </p>
             </div>
-            {hasUnread && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-                onClick={handleMarkAllRead}
-                disabled={isPending}
-              >
-                <CheckCheck className="h-3.5 w-3.5" />
-                Mark all read
-              </Button>
-            )}
           </SheetHeader>
+          {hasUnread && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-5 mt-2 text-xs text-muted-foreground hover:text-foreground"
+              onClick={handleMarkAllRead}
+              disabled={isPending}
+            >
+              <CheckCheck className="h-3.5 w-3.5" />
+              Mark all read
+            </Button>
+          )}
 
-          {/* Body */}
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1 overflow-y-auto">
             {isLoading ? (
               <NotificationSkeleton />
             ) : !hasNotifications ? (
               <EmptyNotifications />
             ) : (
-              <div className="flex flex-col py-1">
+              <div className="flex flex-col py-0">
                 {(notifications ?? []).map((notification, index) => (
-                  <div key={notification.id}>
-                    <NotificationItem
-                      notification={notification}
-                      onMarkRead={updateReadAt}
-                      onDelete={softDeleteNotification}
-                      onViewDetail={handleViewDetail}
-                      isPending={isPending}
-                    />
-                    {index < (notifications ?? []).length - 1 && <Separator />}
-                  </div>
+                  <Fragment key={notification.id}>
+                    <div className="px-3 py-2">
+                      <NotificationItem
+                        notification={notification}
+                        onMarkRead={updateReadAt}
+                        onDelete={softDeleteNotification}
+                        onViewDetail={handleViewDetail}
+                        isPending={isPending}
+                      />
+                    </div>
+                    {index < (notifications ?? []).length - 1 && (
+                      <Separator className="mx-3" />
+                    )}
+                  </Fragment>
                 ))}
               </div>
             )}
@@ -149,7 +149,6 @@ export default function SidebarNotification() {
   );
 }
 
-// Just a bunch of helper functions for the UI
 export function relativeTime(dateStr: string) {
   try {
     return formatDistanceToNow(new Date(dateStr), { addSuffix: true });
