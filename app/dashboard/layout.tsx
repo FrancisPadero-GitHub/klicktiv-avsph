@@ -1,7 +1,7 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
-import { Loader2 } from "lucide-react";
+// import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { ProtectedRoute } from "@/components/protected-route";
@@ -15,6 +15,7 @@ import { useLogout } from "@/hooks/auth/useLogout";
 import { navItems } from "@/components/dashboard/home-layout/sidebar-contents";
 import Topbar from "@/components/dashboard/home-layout/topbar";
 import SidebarContent from "@/components/dashboard/home-layout/sidebar-contents";
+import Loading from "../loading";
 
 // store
 import { useSidebarStore } from "@/features/store/dashboard/useSidebarStore";
@@ -60,8 +61,8 @@ export default function DashboardLayout({
   return (
     <ProtectedRoute>
       {isRoleLoading ? (
-        <div className="flex min-h-screen items-center justify-center bg-background">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <div>
+          <Loading />
         </div>
       ) : !isAdmin && isRestrictedRoute ? null : (
         <div className="fixed inset-0 flex overflow-hidden bg-background">
