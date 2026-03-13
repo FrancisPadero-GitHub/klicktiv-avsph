@@ -12,4 +12,6 @@
   },
   "editor.autoIndentOnPaste": true,
   "editor.cursorBlinking": "smooth",
+  // ignores unknown at rules in global.css
+  "css.lint.unknownAtRules": "ignore"
 }
