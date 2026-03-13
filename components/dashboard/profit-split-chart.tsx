@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Pie, PieChart, Cell } from "recharts";
 import {
   ChartContainer,
@@ -22,7 +23,7 @@ interface ProfitSplitChartProps {
   data: ProfitSplit[];
 }
 
-export function ProfitSplitChart({ data }: ProfitSplitChartProps) {
+export const ProfitSplitChart = memo(function ProfitSplitChart({ data }: ProfitSplitChartProps) {
   const hasData = data.some((d) => d.value > 0);
 
   return (
@@ -76,4 +77,4 @@ export function ProfitSplitChart({ data }: ProfitSplitChartProps) {
       )}
     </div>
   );
-}
+});

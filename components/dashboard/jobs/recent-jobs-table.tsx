@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,7 @@ import { useFetchTechnicians } from "@/hooks/technicians/useFetchTechnicians";
 import { shortId, fmt } from "@/lib/helper";
 import { paymentStatusColors } from "@/components/dashboard/jobs/job-view-dialog";
 
-export function RecentJobsTable() {
+export const RecentJobsTable = memo(function RecentJobsTable() {
   const { data: jobs = [], isLoading, isError } = useFetchViewJobRow();
   const { data: techSummary = [] } = useFetchTechSummary();
   const { data: techDetails = [] } = useFetchTechnicians();
@@ -259,4 +259,4 @@ export function RecentJobsTable() {
       )}
     </div>
   );
-}
+});

@@ -1,6 +1,7 @@
 "use client";
 
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid } from "recharts";
+import { memo } from "react";
 import {
   ChartContainer,
   ChartTooltip,
@@ -26,7 +27,9 @@ interface RevenueTrendChartProps {
   data: DailyRevenue[];
 }
 
-export function RevenueTrendChart({ data }: RevenueTrendChartProps) {
+export const RevenueTrendChart = memo(function RevenueTrendChart({
+  data,
+}: RevenueTrendChartProps) {
   return (
     <div className="rounded-xl border border-border bg-card p-6">
       <div className="mb-4">
@@ -87,4 +90,4 @@ export function RevenueTrendChart({ data }: RevenueTrendChartProps) {
       )}
     </div>
   );
-}
+});

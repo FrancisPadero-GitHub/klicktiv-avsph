@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 import { Pie, PieChart, Cell } from "recharts";
 import {
   ChartContainer,
@@ -24,7 +24,7 @@ interface TechRevenueDonutProps {
   data: TechRevenue[];
 }
 
-export function TechRevenueDonut({ data }: TechRevenueDonutProps) {
+export const TechRevenueDonut = memo(function TechRevenueDonut({ data }: TechRevenueDonutProps) {
   const chartConfig: ChartConfig = useMemo(() => {
     const config: ChartConfig = {};
     data.forEach((item, idx) => {
@@ -90,4 +90,4 @@ export function TechRevenueDonut({ data }: TechRevenueDonutProps) {
       )}
     </div>
   );
-}
+});

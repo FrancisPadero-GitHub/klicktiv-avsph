@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts";
 import {
   ChartContainer,
@@ -30,7 +31,7 @@ interface MonthlyComparisonChartProps {
   data: MonthlyBreakdown[];
 }
 
-export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
+export const MonthlyComparisonChart = memo(function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
   return (
     <div className="rounded-xl border border-border bg-card p-6">
       <div className="mb-4">
@@ -92,4 +93,4 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
       )}
     </div>
   );
-}
+});

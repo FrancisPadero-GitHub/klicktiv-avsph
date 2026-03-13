@@ -17,7 +17,7 @@ function Topbar() {
         <button
           title="Toggle sidebar"
           onClick={() => setDesktopCollapsed(!desktopCollapsed)}
-          className="hidden h-10 w-10 items-center justify-center rounded-md cursor-pointer not-first:text-muted-foreground transition-colors hover:bg-accent text-accent-foreground/90 hover:text-accent-foreground/50 lg:flex"
+          className="hidden items-center justify-center rounded-md cursor-pointer not-first:text-muted-foreground transition-colors hover:bg-accent text-accent-foreground/90 hover:text-accent-foreground/50 lg:flex"
           aria-label="Toggle sidebar"
         >
           {desktopCollapsed === true ? (
