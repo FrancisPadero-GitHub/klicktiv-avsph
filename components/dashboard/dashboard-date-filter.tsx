@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Calendar,
   CalendarDays,
@@ -8,7 +8,9 @@ import {
   ChevronLeft,
   ChevronRight,
   RotateCcw,
+  UserRound,
 } from "lucide-react";
+import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,10 +21,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Calendar as CalendarPicker } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   useDashboardFilterStore,
   type DateFilterMode,
 } from "@/features/store/dashboard/useDashboardFilterStore";
+import { DashboardExportButton } from "@/components/dashboard/dashboard-export-button";
+
+import { useFetchTechnicians } from "@/hooks/technicians/useFetchTechnicians";
+import { useAuth } from "../auth-provider";
 
 const MONTHS = [
   "January",
@@ -55,7 +67,6 @@ const toISODate = (d: Date) => {
   return `${y}-${m}-${day}`;
 };
 
-/** Build an array of years from 2020 to current+1 */
 const yearOptions = () => {
   const current = new Date().getFullYear();
   const years: number[] = [];
@@ -90,7 +101,14 @@ function getISOWeekRange(isoWeek: string) {
 }
 
 export function DashboardDateFilter() {
+  const { role } = useAuth();
+  const isCompany = role === "company" || role === "super_admin";
   const store = useDashboardFilterStore();
+  const { data: technicianList } = useFetchTechnicians();
+
+  const [dayOpen, setDayOpen] = useState(false);
+  const [startOpen, setStartOpen] = useState(false);
+  const [endOpen, setEndOpen] = useState(false);
 
   const filterSummary = useMemo(() => {
     switch (store.mode) {
@@ -128,7 +146,6 @@ export function DashboardDateFilter() {
     store.endDate,
   ]);
 
-  // Navigation helpers
   const navigatePrev = () => {
     if (store.mode === "year") {
       store.setYear(store.year - 1);
@@ -136,14 +153,12 @@ export function DashboardDateFilter() {
       if (store.month === 1) {
         store.setYear(store.year - 1);
         store.setMonth(12);
-      } else {
-        store.setMonth(store.month - 1);
-      }
+      } else store.setMonth(store.month - 1);
     } else if (store.mode === "week") {
       const match = store.isoWeek.match(/^(\d{4})-W(\d{2})$/);
       if (match) {
-        let y = Number(match[1]);
-        let w = Number(match[2]) - 1;
+        let y = Number(match[1]),
+          w = Number(match[2]) - 1;
         if (w < 1) {
           y -= 1;
           w = 52;
@@ -164,14 +179,12 @@ export function DashboardDateFilter() {
       if (store.month === 12) {
         store.setYear(store.year + 1);
         store.setMonth(1);
-      } else {
-        store.setMonth(store.month + 1);
-      }
+      } else store.setMonth(store.month + 1);
     } else if (store.mode === "week") {
       const match = store.isoWeek.match(/^(\d{4})-W(\d{2})$/);
       if (match) {
-        let y = Number(match[1]);
-        let w = Number(match[2]) + 1;
+        let y = Number(match[1]),
+          w = Number(match[2]) + 1;
         if (w > 52) {
           y += 1;
           w = 1;
@@ -186,6 +199,11 @@ export function DashboardDateFilter() {
   };
 
   const showNav = store.mode !== "all" && store.mode !== "range";
+
+  // Derive Date objects from ISO strings for the pickers
+  const selectedDay = store.date ? parseISO(store.date) : new Date();
+  const selectedStart = store.startDate ? parseISO(store.startDate) : undefined;
+  const selectedEnd = store.endDate ? parseISO(store.endDate) : undefined;
 
   return (
     <div className="space-y-3">
@@ -208,7 +226,6 @@ export function DashboardDateFilter() {
           ))}
         </div>
 
-        {/* Navigation Arrows */}
         {showNav && (
           <div className="flex items-center gap-1">
             <Button variant="outline" size="icon-xs" onClick={navigatePrev}>
@@ -220,7 +237,6 @@ export function DashboardDateFilter() {
           </div>
         )}
 
-        {/* Reset */}
         <Button
           variant="ghost"
           size="xs"
@@ -234,7 +250,6 @@ export function DashboardDateFilter() {
 
       {/* Mode-specific controls */}
       <div className="flex flex-wrap items-end gap-3">
-        {/* Year Selector, shown for year & month modes */}
         {(store.mode === "year" || store.mode === "month") && (
           <div className="space-y-1">
             <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
@@ -258,7 +273,6 @@ export function DashboardDateFilter() {
           </div>
         )}
 
-        {/* Month Selector */}
         {store.mode === "month" && (
           <div className="space-y-1">
             <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
@@ -282,11 +296,10 @@ export function DashboardDateFilter() {
           </div>
         )}
 
-        {/* Week Input */}
         {store.mode === "week" && (
-          <div className="space-y-1">
+          <div className="flex flex-col space-y-1">
             <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              ISO Week
+              Week
             </label>
             <Input
               type="week"
@@ -297,48 +310,145 @@ export function DashboardDateFilter() {
           </div>
         )}
 
-        {/* Day Input */}
+        {/* Day — Popover Calendar */}
         {store.mode === "day" && (
-          <div className="space-y-1">
+          <div className="flex flex-col space-y-1">
             <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
               Date
             </label>
-            <Input
-              type="date"
-              value={store.date}
-              onChange={(e) => store.setDate(e.target.value)}
-              className="h-8 w-44 text-sm"
-            />
+            <Popover open={dayOpen} onOpenChange={setDayOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="h-8 w-44 justify-between text-sm font-normal"
+                >
+                  {store.date ? format(selectedDay, "PPP") : "Pick a date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-auto overflow-hidden p-0"
+                align="start"
+              >
+                <CalendarPicker
+                  mode="single"
+                  selected={selectedDay}
+                  captionLayout="dropdown"
+                  defaultMonth={selectedDay}
+                  onSelect={(d) => {
+                    if (d) {
+                      store.setDate(toISODate(d));
+                      setDayOpen(false);
+                    }
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         )}
 
-        {/* Range Inputs */}
+        {/* Range — two Popover Calendars */}
         {store.mode === "range" && (
           <>
-            <div className="space-y-1">
+            <div className="flex flex-col space-y-1">
               <label className="text-xs font-medium text-muted-foreground">
                 From
               </label>
-              <Input
-                type="date"
-                value={store.startDate}
-                onChange={(e) => store.setStartDate(e.target.value)}
-                className="h-8 w-44 text-sm"
-              />
+              <Popover open={startOpen} onOpenChange={setStartOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-8 w-44 justify-between text-sm font-normal"
+                  >
+                    {selectedStart
+                      ? format(selectedStart, "PPP")
+                      : "Start date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-auto overflow-hidden p-0"
+                  align="start"
+                >
+                  <CalendarPicker
+                    mode="single"
+                    selected={selectedStart}
+                    captionLayout="dropdown"
+                    defaultMonth={selectedStart ?? new Date()}
+                    onSelect={(d) => {
+                      if (d) {
+                        store.setStartDate(toISODate(d));
+                        setStartOpen(false);
+                      }
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-            <div className="space-y-1">
+
+            <div className="flex flex-col space-y-1">
               <label className="text-xs font-medium text-muted-foreground">
                 To
               </label>
-              <Input
-                type="date"
-                value={store.endDate}
-                onChange={(e) => store.setEndDate(e.target.value)}
-                className="h-8 w-44 text-sm"
-              />
+              <Popover open={endOpen} onOpenChange={setEndOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-8 w-44 justify-between text-sm font-normal"
+                  >
+                    {selectedEnd ? format(selectedEnd, "PPP") : "End date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-auto overflow-hidden p-0"
+                  align="start"
+                >
+                  <CalendarPicker
+                    mode="single"
+                    selected={selectedEnd}
+                    captionLayout="dropdown"
+                    defaultMonth={selectedEnd ?? new Date()}
+                    onSelect={(d) => {
+                      if (d) {
+                        store.setEndDate(toISODate(d));
+                        setEndOpen(false);
+                      }
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </>
         )}
+
+        {/* Technician Selector */}
+        <div className="flex flex-col space-y-1">
+          <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            Technician
+          </label>
+          <Select
+            value={store.technicianId || "all"}
+            onValueChange={(v) => store.setTechnicianId(v)}
+          >
+            <SelectTrigger size="sm" className="w-48">
+              <UserRound className="size-3.5 shrink-0 text-muted-foreground" />
+              <SelectValue placeholder="All Technicians" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Technicians</SelectItem>
+              {technicianList?.map((tech) => (
+                <SelectItem key={tech.id} value={tech.id}>
+                  {tech.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex flex-col space-y-1">
+          {isCompany ? (
+            <div className="self-start">
+              <DashboardExportButton />
+            </div>
+          ) : null}
+        </div>
 
         {/* Active filter summary badge */}
         <div className="flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1.5 text-xs font-medium text-muted-foreground">

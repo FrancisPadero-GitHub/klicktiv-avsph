@@ -1,7 +1,5 @@
 "use client";
-import { TopCategoriesChart } from "@/components/dashboard/jobs/job-top-categories";
-import { TechRevenueBarChart } from "@/components/dashboard/technician/tech-revenue-bar-chart";
-import { TopJobsChart } from "@/components/dashboard/jobs/top-jobs-chart";
+
 import { JobsTable } from "@/components/dashboard/jobs/jobs-table";
 import { JobSummaryCards } from "@/components/dashboard/jobs/job-summary-cards";
 
@@ -26,14 +24,6 @@ export default function JobsPage() {
 
       {/* Jobs Table*/}
       <JobsTable />
-
-      {/* Charts */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <TopCategoriesChart />
-        <TechRevenueBarChart />
-      </div>
-
-      <TopJobsChart />
     </div>
   );
 }

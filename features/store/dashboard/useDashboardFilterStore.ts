@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 export type DateFilterMode =
   | "all"
@@ -23,6 +22,8 @@ export interface DashboardDateFilter {
   startDate: string;
   /** ISO date string for range end */
   endDate: string;
+  /** UUID of the selected technician, or "all" for no filter */
+  technicianId: string | null;
 }
 
 interface DashboardFilterState extends DashboardDateFilter {
@@ -33,6 +34,7 @@ interface DashboardFilterState extends DashboardDateFilter {
   setDate: (date: string) => void;
   setStartDate: (startDate: string) => void;
   setEndDate: (endDate: string) => void;
+  setTechnicianId: (technicianId: string) => void;
   setPreset: (
     mode: DateFilterMode,
     overrides?: Partial<DashboardDateFilter>,
@@ -62,37 +64,34 @@ const getCurrentISOWeek = (): string => {
 const now = new Date();
 
 const initialState: DashboardDateFilter = {
-  mode: "month",
+  mode: "year",
   year: now.getFullYear(),
   month: now.getMonth() + 1,
   isoWeek: getCurrentISOWeek(),
   date: toISODate(now),
   startDate: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`,
   endDate: toISODate(now),
+  technicianId: "all",
 };
 
 export const useDashboardFilterStore = create<DashboardFilterState>()(
-  persist(
-    (set) => ({
-      ...initialState,
+  (set) => ({
+    ...initialState,
 
-      setMode: (mode) => set({ mode }),
-      setYear: (year) => set({ year }),
-      setMonth: (month) => set({ month }),
-      setIsoWeek: (isoWeek) => set({ isoWeek }),
-      setDate: (date) => set({ date }),
-      setStartDate: (startDate) => set({ startDate }),
-      setEndDate: (endDate) => set({ endDate }),
+    setMode: (mode) => set({ mode }),
+    setYear: (year) => set({ year }),
+    setMonth: (month) => set({ month }),
+    setIsoWeek: (isoWeek) => set({ isoWeek }),
+    setDate: (date) => set({ date }),
+    setStartDate: (startDate) => set({ startDate }),
+    setEndDate: (endDate) => set({ endDate }),
+    setTechnicianId: (technicianId) => set({ technicianId }),
 
-      setPreset: (mode, overrides) =>
-        set((state) => ({ ...state, mode, ...overrides })),
+    setPreset: (mode, overrides) =>
+      set((state) => ({ ...state, mode, ...overrides })),
 
-      reset: () => set(initialState),
-    }),
-    {
-      name: "dashboard-date-filter",
-    },
-  ),
+    reset: () => set(initialState),
+  }),
 );
 
 /**
@@ -107,5 +106,7 @@ export function toJobsSummaryFilter(filter: DashboardDateFilter) {
     date: filter.date,
     startDate: filter.startDate,
     endDate: filter.endDate,
+    technicianId:
+      filter.technicianId === "all" ? undefined : filter.technicianId,
   };
 }
