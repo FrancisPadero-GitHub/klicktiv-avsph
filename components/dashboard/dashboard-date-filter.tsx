@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   RotateCcw,
+  UserRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,9 @@ import {
   useDashboardFilterStore,
   type DateFilterMode,
 } from "@/features/store/dashboard/useDashboardFilterStore";
+
+// fetch technician for the filter
+import { useFetchTechnicians } from "@/hooks/technicians/useFetchTechnicians";
 
 const MONTHS = [
   "January",
@@ -91,6 +95,8 @@ function getISOWeekRange(isoWeek: string) {
 
 export function DashboardDateFilter() {
   const store = useDashboardFilterStore();
+
+  const { data: technicianList } = useFetchTechnicians();
 
   const filterSummary = useMemo(() => {
     switch (store.mode) {
@@ -284,9 +290,9 @@ export function DashboardDateFilter() {
 
         {/* Week Input */}
         {store.mode === "week" && (
-          <div className="space-y-1">
+          <div className="flex flex-col space-y-1">
             <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              ISO Week
+              Week
             </label>
             <Input
               type="week"
@@ -299,7 +305,7 @@ export function DashboardDateFilter() {
 
         {/* Day Input */}
         {store.mode === "day" && (
-          <div className="space-y-1">
+          <div className="flex flex-col space-y-1">
             <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
               Date
             </label>
@@ -315,7 +321,7 @@ export function DashboardDateFilter() {
         {/* Range Inputs */}
         {store.mode === "range" && (
           <>
-            <div className="space-y-1">
+            <div className="flex flex-col space-y-1">
               <label className="text-xs font-medium text-muted-foreground">
                 From
               </label>
@@ -326,7 +332,7 @@ export function DashboardDateFilter() {
                 className="h-8 w-44 text-sm"
               />
             </div>
-            <div className="space-y-1">
+            <div className="flex flex-col space-y-1">
               <label className="text-xs font-medium text-muted-foreground">
                 To
               </label>
@@ -339,6 +345,30 @@ export function DashboardDateFilter() {
             </div>
           </>
         )}
+
+        {/* Technician Selector */}
+        <div className="flex flex-col space-y-1">
+          <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            Technician
+          </label>
+          <Select
+            value={store.technicianId || "all"}
+            onValueChange={(v) => store.setTechnicianId(v)}
+          >
+            <SelectTrigger size="sm" className="w-48">
+              <UserRound className="size-3.5 shrink-0 text-muted-foreground" />
+              <SelectValue placeholder="All Technicians" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Technicians</SelectItem>
+              {technicianList?.map((tech) => (
+                <SelectItem key={tech.id} value={tech.id}>
+                  {tech.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Active filter summary badge */}
         <div className="flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1.5 text-xs font-medium text-muted-foreground">
