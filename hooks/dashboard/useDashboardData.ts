@@ -75,6 +75,7 @@ export function useDashboardData() {
   const date = useDashboardFilterStore((s) => s.date);
   const startDate = useDashboardFilterStore((s) => s.startDate);
   const endDate = useDashboardFilterStore((s) => s.endDate);
+  const technicianId = useDashboardFilterStore((s) => s.technicianId);
 
   const filterPayload = useMemo(
     () =>
@@ -86,8 +87,9 @@ export function useDashboardData() {
         date,
         startDate,
         endDate,
+        technicianId,
       }),
-    [mode, year, month, isoWeek, date, startDate, endDate],
+    [mode, year, month, isoWeek, date, startDate, endDate, technicianId],
   );
 
   const jobsQuery = useFetchJobDetailed(filterPayload);

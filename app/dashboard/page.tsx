@@ -5,6 +5,7 @@ import { DashboardKPIs } from "@/components/dashboard/dashboard-kpis";
 import { RecentJobsList } from "@/components/dashboard/jobs/recent-jobs-list";
 import { DashboardExportButton } from "@/components/dashboard/dashboard-export-button";
 import { FinancialTrendsSection } from "@/components/dashboard/financial/financial-trends-section";
+import { TechnicianPerformanceSection } from "@/components/dashboard/financial/technician-performance-section";
 import { useAuth } from "@/components/auth-provider";
 
 export default function DashboardPage() {
@@ -39,6 +40,7 @@ export default function DashboardPage() {
       <div className="space-y-4">
         <DashboardKPIs companyId={company_id ?? ""} />
         <FinancialTrendsSection companyId={company_id ?? ""} />
+        <TechnicianPerformanceSection companyId={company_id ?? ""} />
         <RecentJobsList />
       </div>
     </div>
