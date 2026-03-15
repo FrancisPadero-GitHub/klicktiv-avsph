@@ -128,9 +128,9 @@ export function CreateLoginCredentials() {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button size="sm">
-          <UserPlus className="mr-2 h-4 w-4" />
-          Create Credentials
+        <Button size="sm" className="justify-between">
+          <UserPlus className="h-4 w-4 sm:mr-2 " />
+          <span className="hidden sm:inline">Create Credentials</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">

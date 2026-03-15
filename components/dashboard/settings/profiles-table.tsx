@@ -15,6 +15,9 @@ import { useFetchProfiles } from "@/hooks/auth/useFetchProfiles";
 import { QueryStatePanel } from "@/components/misc/query-state-panel";
 import { CreateLoginCredentials } from "@/components/dashboard/settings/create-va";
 
+// component
+import SettingsSkeleton from "@/components/loading-skeletons/settings/settings-skeleton";
+
 function RoleBadge({ role }: { role: string | null }) {
   const isAdmin = role === "admin";
   return (
@@ -33,6 +36,8 @@ function RoleBadge({ role }: { role: string | null }) {
 
 export function ProfilesTable() {
   const { data: profiles, isLoading, isError } = useFetchProfiles();
+
+  if (isLoading) return <SettingsSkeleton />;
 
   return (
     <QueryStatePanel

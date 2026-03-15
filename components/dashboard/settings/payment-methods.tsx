@@ -35,8 +35,10 @@ import {
   Loader2,
   AlertTriangle,
 } from "lucide-react";
-import { Spinner } from "@/components/ui/spinner";
 import { QueryStatePanel } from "@/components/misc/query-state-panel";
+
+// component
+import SettingsSkeleton from "@/components/loading-skeletons/settings/settings-skeleton";
 
 type PaymentMethodRow = Database["public"]["Tables"]["payment_methods"]["Row"];
 
@@ -103,7 +105,7 @@ export function PaymentMethodsTable() {
         m.id !== editingId,
     );
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <SettingsSkeleton />;
 
   return (
     <QueryStatePanel
@@ -126,9 +128,13 @@ export function PaymentMethodsTable() {
           </div>
           <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-              <Button size="sm" onClick={() => setEditingId(null)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Method
+              <Button
+                size="sm"
+                onClick={() => setEditingId(null)}
+                className="justify-center"
+              >
+                <Plus className="h-4 w-4 sm:mr-2 " />
+                <span className="hidden sm:inline">Add Method</span>
               </Button>
             </DialogTrigger>
             <DialogContent>

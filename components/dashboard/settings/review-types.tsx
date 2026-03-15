@@ -28,8 +28,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ClipboardList, Pencil, Plus, Trash2, Loader2 } from "lucide-react";
-import { Spinner } from "@/components/ui/spinner";
 import { QueryStatePanel } from "@/components/misc/query-state-panel";
+
+// component
+import SettingsSkeleton from "@/components/loading-skeletons/settings/settings-skeleton";
 
 type ReviewTypeRow = Database["public"]["Tables"]["review_types"]["Row"];
 
@@ -96,7 +98,7 @@ export function ReviewTypesTable() {
 
   const isSubmitting = addMutation.isPending || editMutation.isPending;
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <SettingsSkeleton />;
 
   return (
     <QueryStatePanel
@@ -119,9 +121,13 @@ export function ReviewTypesTable() {
           </div>
           <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-              <Button size="sm" onClick={() => setEditingId(null)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Type
+              <Button
+                size="sm"
+                onClick={() => setEditingId(null)}
+                className="justify-between"
+              >
+                <Plus className="h-4 w-4 sm:mr-2 " />
+                <span className="hidden sm:inline">Add Type</span>
               </Button>
             </DialogTrigger>
             <DialogContent>

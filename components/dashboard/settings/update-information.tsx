@@ -31,6 +31,10 @@ import {
   AlertCircle,
 } from "lucide-react";
 
+// component
+import { QueryStatePanel } from "@/components/misc/query-state-panel";
+import SettingsSkeleton from "@/components/loading-skeletons/settings/settings-skeleton";
+
 function InfoRow({
   icon: Icon,
   label,
@@ -48,7 +52,9 @@ function InfoRow({
         <Icon className="h-4 w-4 text-secondary-foreground/60" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="text-xs text-muted-foreground sm:text-base tracking-tight truncate block">
+          {label}
+        </p>
         <p className="text-sm font-medium text-foreground truncate">
           {masked ? "••••••••••••" : value}
         </p>
@@ -103,7 +109,7 @@ function UpdateCompanyDialog({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!name.trim() || name === currentName) return;
 
@@ -132,9 +138,9 @@ function UpdateCompanyDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {isAdmin && (
-          <Button size="sm" variant="outline">
-            <Pencil className="mr-2 h-3.5 w-3.5" />
-            Edit
+          <Button size="sm" variant="outline" className="justify-between">
+            <Pencil className="h-3.5 w-3.5 sm:mr-2 " />
+            <span className="hidden sm:inline">Edit</span>
           </Button>
         )}
       </DialogTrigger>
@@ -186,8 +192,6 @@ function UpdateCompanyDialog({
   );
 }
 
-// ── Password Dialog ───────────────────────────────────────────────────────────
-
 function UpdatePasswordDialog() {
   const [open, setOpen] = useState(false);
   const [password, setPassword] = useState("");
@@ -232,9 +236,9 @@ function UpdatePasswordDialog() {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline">
-          <Pencil className="mr-2 h-3.5 w-3.5" />
-          Change
+        <Button size="sm" variant="outline" className="justify-between">
+          <Pencil className="h-3.5 w-3.5 sm:mr-2 " />
+          <span className="hidden sm:inline">Change Password</span>
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -302,60 +306,68 @@ function UpdatePasswordDialog() {
   );
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
-
 function UpdateInformation() {
   const { user, company_id } = useAuth();
-  const { data: company } = useFetchCompany(company_id ?? undefined);
+  const { data: company, isLoading } = useFetchCompany(company_id ?? undefined);
 
   const currentEmail = user?.email ?? "-";
   const companyName = company?.name ?? "-";
 
+  if (isLoading) return <SettingsSkeleton />;
+
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-xl font-semibold text-foreground">
-          Login Information
-        </h2>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          View and update your account credentials.
-        </p>
+    <QueryStatePanel
+      isLoading={isLoading}
+      isError={false}
+      errorMessage=""
+      loadingMessage="Loading company information..."
+      className="min-h-80"
+    >
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">
+            Login Information
+          </h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            View and update your account credentials.
+          </p>
+        </div>
+
+        <Card className="border-border bg-card shadow-none">
+          <CardContent className="p-0">
+            {/* Company Name */}
+            <div className="flex items-center gap-4 px-5">
+              <div className="flex-1 min-w-0">
+                <InfoRow icon={Building2} label="Company" value={companyName} />
+              </div>
+              {company_id && (
+                <UpdateCompanyDialog
+                  companyId={company_id}
+                  currentName={companyName}
+                />
+              )}
+            </div>
+
+            <div className="border-b border-border mx-5" />
+
+            {/* Email */}
+            <div className="flex items-center gap-4 px-5">
+              <InfoRow icon={Mail} label="Email Address" value={currentEmail} />
+            </div>
+
+            <div className="border-b border-border mx-5" />
+
+            {/* Password */}
+            <div className="flex items-center gap-4 px-5">
+              <div className="flex-1">
+                <InfoRow icon={Lock} label="Password" value="" masked />
+              </div>
+              <UpdatePasswordDialog />
+            </div>
+          </CardContent>
+        </Card>
       </div>
-
-      <Card className="border-border bg-card shadow-none">
-        <CardContent className="p-0">
-          {/* Company Name */}
-          <div className="flex items-center gap-4 px-5">
-            <div className="flex-1">
-              <InfoRow icon={Building2} label="Company" value={companyName} />
-            </div>
-            {company_id && (
-              <UpdateCompanyDialog
-                companyId={company_id}
-                currentName={companyName}
-              />
-            )}
-          </div>
-
-          <div className="border-b border-border mx-5" />
-
-          {/* Email */}
-          <div className="flex items-center gap-4 px-5">
-            <InfoRow icon={Mail} label="Email Address" value={currentEmail} />
-          </div>
-
-          <div className="border-b border-border mx-5" />
-
-          {/* Password */}
-          <div className="flex items-center gap-4 px-5">
-            <div className="flex-1">
-              <InfoRow icon={Lock} label="Password" value="" masked />
-            </div>
-            <UpdatePasswordDialog />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    </QueryStatePanel>
   );
 }
 

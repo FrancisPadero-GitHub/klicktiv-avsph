@@ -516,7 +516,7 @@ export function ReviewsTable({ onEdit, highlightReviewId }: ReviewsTableProps) {
               {filtered.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={8}
+                    colSpan={9}
                     className="px-4 py-8 text-center text-sm text-muted-foreground"
                   >
                     No reviews match your filters.
