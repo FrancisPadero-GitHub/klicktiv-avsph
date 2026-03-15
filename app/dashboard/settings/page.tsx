@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import { useEffect, type ElementType, useMemo } from "react";
 import { PaymentMethodsTable } from "@/components/dashboard/settings/payment-methods";
 import { ReviewTypesTable } from "@/components/dashboard/settings/review-types";
 import { ProfilesTable } from "@/components/dashboard/settings/profiles-table";
@@ -13,12 +13,14 @@ import {
 } from "@/features/store/settings/useSettingStore";
 import { useAuth } from "@/components/auth-provider";
 
-const tabs: Array<{
+type Array = {
   id: SettingsTab;
   label: string;
-  icon: React.ElementType;
+  icon: ElementType;
   description: string;
-}> = [
+};
+
+const tabs: Array[] = [
   {
     id: "payment-methods",
     label: "Payment Methods",
@@ -50,7 +52,7 @@ export default function SettingsPage() {
   const { role } = useAuth();
   const isAdmin = role === "company" || role === "super_admin";
 
-  const visibleTabs = React.useMemo(() => {
+  const visibleTabs = useMemo(() => {
     return tabs.filter((tab) => {
       if (
         tab.id === "payment-methods" ||
@@ -63,7 +65,7 @@ export default function SettingsPage() {
     });
   }, [isAdmin]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       visibleTabs.length > 0 &&
       !visibleTabs.find((t) => t.id === activeTab)

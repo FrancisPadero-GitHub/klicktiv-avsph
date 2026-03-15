@@ -40,7 +40,6 @@ export function ProfilesTable() {
       isError={isError}
       errorMessage="Failed to load profiles"
       loadingMessage="Loading profiles..."
-      className="min-h-80"
     >
       <div className="space-y-4">
         {/* Header */}

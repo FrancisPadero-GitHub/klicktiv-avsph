@@ -29,17 +29,8 @@ export function ProtectedRoute({
     }
   }, [isLoading, user, router, redirectTo]);
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-        <Loading />
-      </div>
-    );
-  }
-
-  if (!user) {
-    // Will redirect via the effect above; render nothing in the meantime
-    return null;
+  if (isLoading || !user) {
+    return <Loading />;
   }
 
   return children;
